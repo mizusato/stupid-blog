@@ -1,3 +1,2 @@
-# stupid-blog
+# Still Under Development
 
-An extremely lightweight blog program. (Still Under Development)
