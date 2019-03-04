@@ -1,0 +1,20 @@
+{
+  "name": "stupid-blog",
+  "version": "0.0.1",
+  "description": "A simple blog.",
+  "main": "server.js",
+  "repository": "https://notabug.org/mizusato/stupid-blog",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "blog"
+  ],
+  "author": "mizusato",
+  "license": "GPL-2.0-only",
+  "dependencies": {
+    "argparse": ">=1.0.10",
+    "ecstatic": ">=3.3.1",
+    "express": ">=4.16.4"
+  }
+}
