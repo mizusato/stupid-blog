@@ -1,19 +1,35 @@
+#!/usr/bin/env node
+
+
+let DATA_FILE = 'data.json'
+
+
 let express = require('express')
 let ecstatic = require('ecstatic')
 let argparse = require('argparse')
+let fs = require('fs')
+let data = JSON.parse(fs.readFileSync(DATA_FILE))
 
 
-let parser = new argparse.ArgumentParser({
-    addHelp: true,
-    description: 'Blog Server'
+function save_data() {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data))
+}
+
+
+let server = express()    
+
+
+server.use((req, res, next) => {
+    console.log(`FROM ${req.ip} ${req.method} ${req.originalUrl}`)
+    next()
 })
 
-parser.addArgument(['-p','--port'], { defaultValue: '9487' })
 
-let args = parser.parseArgs()
-
-
-let server = express()
+server.get('/data', async (req, res) => {
+    // delay for debugging
+    await new Promise(resolve => setTimeout(()=>resolve(), '2000'))
+    res.json(data)
+})
 
 
 server.use(ecstatic({
@@ -45,4 +61,17 @@ server.use((req, res, next) => {
 })
 
 
-server.listen(args.port, () => console.log(`listening on port ${args.port}`))
+function main() {
+    let parser = new argparse.ArgumentParser({
+        addHelp: true,
+        description: 'Blog Server'
+    })
+    parser.addArgument(['-p','--port'], { defaultValue: '9487' })
+    let args = parser.parseArgs()
+    server.listen(
+        args.port, () => console.log(`listening on port ${args.port}`)
+    )
+}
+
+
+main()
