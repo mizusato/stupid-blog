@@ -15,16 +15,18 @@ async function get_data() {
 
 
 let TitleBar = (props) => JSX({
-    tag: 'div',
+    tag: 'title-bar',
     children: [
-        { tag: 'h1', children: [props.data.name] },
-        { tag: 'p', children: [props.data.description] }
+        { tag: 'header', children: [
+            { tag: 'h1', children: [props.data.name] },
+            { tag: 'p', children: [props.data.description] }
+        ] }
     ]
 })
 
 
 let PageSwitcher = (props) => JSX({
-    tag: 'p',
+    tag: 'navbar',
     children: Array.concat([
         { tag: Link, to: '/', children: [MSG.articles] }
     ], props.pages.map(page => (
@@ -34,37 +36,35 @@ let PageSwitcher = (props) => JSX({
 
 
 let ArticleList = (props) => JSX({
-    tag: 'div',
+    tag: 'article-list',
     children: props.articles.map(article => (
         // TODO: route
-        { tag: 'div', children: [
-            { tag: Link, to: `/article/${article.id}`,
+        { tag: 'article-item', children: [
+            { tag: Link, className: 'title', to: `/article/${article.id}`,
               children: [article.title] },
-            { tag: 'p', children: [article.summary] }
+            { tag: 'summary', children: [article.summary] }
         ] }
     ))
 })
 
 
 let Page = (props) => JSX({
-    tag: 'div',
-    children: [
-        { tag: 'p', children: [props.page.content] }
-    ]
+    tag: 'page-content',
+    children: [props.page.content]
 })
 
 
 let Article = (props) => JSX({
-    tag: 'div',
+    tag: 'article',
     children: [
-        { tag: Link, to: '/', children: [MSG.go_back] },
-        { tag: 'p', children: [props.article.content] }
+//        { tag: Link, to: '/', children: [MSG.go_back] },
+        { tag: 'div', children: [props.article.content] }
     ]
 })
 
 
-let PageContent = (props) => JSX({
-    tag: 'div',
+let Content = (props) => JSX({
+    tag: 'content',
     children: Array.concat([
         { tag: Route, path: '/', exact: true,
           render: (route) => JSX({
@@ -96,12 +96,12 @@ let PageContent = (props) => JSX({
 })
 
 
-let PageWrapper = (props) => JSX({
+let Wrapper = (props) => JSX({
     tag: Router,
     children: [
-        { tag: 'div', children: [
+        { tag: 'wrapper', children: [
             { tag: PageSwitcher, data: props.data, pages: props.data.pages },
-            { tag: PageContent, data: props.data }
+            { tag: Content, data: props.data }
         ] }
     ]
 })
@@ -129,11 +129,13 @@ class Blog extends React.Component {
     render () {
         let content = {
             loading: () => JSX({
-                tag: 'p',
+                tag: 'blog',
+                className: 'loading',
                 children: [MSG.loading]
             }),
             failed: () => JSX({
-                tag: 'div',
+                tag: 'blog',
+                className: 'failed',
                 children: [
                     { tag: 'p', children: [MSG.failed] },
                     { tag: 'button', children: [MSG.retry], handlers: {
@@ -142,14 +144,15 @@ class Blog extends React.Component {
                 ]
             }),
             success: () => JSX({
-                tag: 'div',
+                tag: 'blog',
+                className: 'ready',
                 children: [
                     {
                         tag: TitleBar,
                         data: this.state.data
                     },
                     {
-                        tag: PageWrapper,
+                        tag: Wrapper,
                         data: this.state.data
                     }
                     /*

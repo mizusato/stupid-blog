@@ -27,7 +27,7 @@ server.use((req, res, next) => {
 
 server.get('/data', async (req, res) => {
     // delay for debugging
-    await new Promise(resolve => setTimeout(()=>resolve(), '2000'))
+    await new Promise(resolve => setTimeout(()=>resolve(), '1000'))
     res.json(data)
 })
 
