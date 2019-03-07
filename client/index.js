@@ -24,7 +24,7 @@ let TitleBar = (props) => JSX({
 
 
 let PageSwitcher = (props) => JSX({
-    tag: 'div',
+    tag: 'p',
     children: Array.concat([
         { tag: Link, to: '/', children: [MSG.articles] }
     ], props.pages.map(page => (
@@ -38,7 +38,8 @@ let ArticleList = (props) => JSX({
     children: props.articles.map(article => (
         // TODO: route
         { tag: 'div', children: [
-            { tag: 'h2', children: [article.title] },
+            { tag: Link, to: `/article/${article.id}`,
+              children: [article.title] },
             { tag: 'p', children: [article.summary] }
         ] }
     ))
@@ -49,6 +50,15 @@ let Page = (props) => JSX({
     tag: 'div',
     children: [
         { tag: 'p', children: [props.page.content] }
+    ]
+})
+
+
+let Article = (props) => JSX({
+    tag: 'div',
+    children: [
+        { tag: Link, to: '/', children: [MSG.go_back] },
+        { tag: 'p', children: [props.article.content] }
     ]
 })
 
@@ -71,6 +81,15 @@ let PageContent = (props) => JSX({
               tag: Page,
               data: props.data,
               page: page
+          })
+        }
+    )), props.data.articles.map(article => (
+        { tag: Route, path: `/article/${article.id}`,
+          render: (route) => JSX({
+              ...route,
+              tag: Article,
+              data: props.data,
+              article: article
           })
         }
     )))
@@ -132,11 +151,13 @@ class Blog extends React.Component {
                     {
                         tag: PageWrapper,
                         data: this.state.data
-                    },
+                    }
+                    /*
                     {
                         tag: 'div',
                         children: [JSON.stringify(this.state.data)]
                     }
+                    */
                 ]
             })
         }
