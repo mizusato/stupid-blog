@@ -42,6 +42,23 @@ server.use(ecstatic({
 }))
 
 
+server.use('/page/:id', (req, res, next) => {
+    req.url = '/'
+    server.handle(req, res, next)
+})
+
+
+server.use('/article/:id', (req, res, next) => {
+    req.url = '/'
+    server.handle(req, res, next)
+})
+
+
+server.use('/', (req, res, next) => {
+    next()
+})
+
+
 server.use(ecstatic({
     baseDir: '/',
     root: `${__dirname}/client`,

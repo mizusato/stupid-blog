@@ -1,24 +1,26 @@
 body {
     margin: 0px auto;
     font-family: sans-serif;
+    background-color: hsl(0, 0%, 90%);
 }
 
 
 @media only screen and (min-width: 1224px) {
     body {
-        width: 60vw;
+        width: 60%;
+        box-sizing: border-box;
     }
 }
 
 
 a {
-    color: hsl(233, 90%, 70%);
+    color: hsl(233, 90%, 55%);
     text-decoration: none;
     outline: none;
 }
 
 
-blog, title-bar, navbar, content, article-list, article-item, summary, page-content, wrapper {
+blog, wrapper, header, title-bar, nav-bar, content, article-list, article-item, summary, page {
     display: block;
 }
 
@@ -28,45 +30,75 @@ blog {
 }
 
 
-title-bar > * {
+blog.loading > wrapper, blog.failed > wrapper {
+    display: flex;
+    height: 85vh;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column nowrap;
+    font-size: 120%;
+}
+
+
+header, article, article-item, page {
+    background-color: hsl(0, 0%, 97%);
+    border: 1px solid hsl(0, 0%, 80%);
+    padding: 3% 5%;
+    box-shadow: 0 3px 9px hsla(0, 0%, 40%, 0.6);
+}
+
+
+header {
+    display: flex;    
+}
+
+
+title-bar {
+    flex-grow: 1;
+}
+
+
+h1 {
     margin: 0px;
 }
 
 
 title-bar > h1 {
-    margin: 0% 1%;
+    margin: 0.5% 0%;
     font-size: 200%;
 }
 
 
 title-bar > h1 + p {    
-    margin: 1% 1.3%;
+    margin: 1.5% 0.5%;
     font-size: 115%;
     color: hsl(0, 0%, 30%);
 }
 
 
-navbar {
+nav-bar {
+    margin: 1.5% 1% 0% 1%;
+    max-width: 45%;
     display: flex;
-    margin: 2% 3%;
+    flex-flow: column wrap-reverse;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding-bottom: 1.5%;
 }
 
 
-navbar > * {
+nav-bar > * {
     margin: 0% 1.5%;
     font-size: 130%;
-    color: hsl(0, 0%, 20%);
+    display: block;
+    white-space: nowrap;
 }
 
-
-article-list {
-    margin: 0% 1%;
-    padding: 0.5% 0%;
-}
 
 
 content {
-    margin: 1.8% 1.5%;
+    margin: 1.8% 0%;
+    font-size: 120%;
 }
 
 
@@ -75,11 +107,12 @@ article-item {
 }
 
 
-article-item > .title {
-    margin-bottom: 1%;
+.title {
+    margin: 1% 0%;
     color: hsl(0, 0%, 18%);
     font-size: 170%;
     font-weight: bold;
+    display: block;
 }
 
 
@@ -90,11 +123,3 @@ article-item > summary {
 }
 
 
-page-content {
-    font-size: 120%;
-}
-
-
-page-content, article {
-    padding: 1% 1.5%;
-}

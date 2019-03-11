@@ -1,7 +1,9 @@
 {
-    "name": "Stupid Blog",
+    "name": "A Stupid Blog",
     "description": "Yet another simple blog.",
     "URL": "http://localhost:9487",
+    "title": "Stupid Blog",
+    "home_link": "Home",
     "pages": [
         {
             "id": "about",
