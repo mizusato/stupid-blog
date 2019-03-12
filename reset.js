@@ -16,6 +16,7 @@ function main () {
     }
     security.reset(url, username, password)
     console.log('credentials updated successfully.')
+    console.log('please restart the server to apply changes.')
 }
 
 
