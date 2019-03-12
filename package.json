@@ -14,8 +14,11 @@
   "author": "mizusato",
   "license": "GPL-2.0-only",
   "dependencies": {
-    "argparse": ">=1.0.10",
-    "ecstatic": ">=3.3.1",
-    "express": ">=4.16.4"
+    "argparse": "^1.0.10",
+    "bcrypt": "^3.0.4",
+    "ecstatic": "^3.3.1",
+    "express": "^4.16.4",
+    "express-basic-auth": "^1.1.6",
+    "readline-sync": "^1.4.9"
   }
 }
