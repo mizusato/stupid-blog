@@ -1,3 +1,4 @@
+let CONFIG_SCHEMA = { url: 'string', username: 'string', password: 'string' }
 let PASSWORD_FILE = 'password.json'
 let ROUNDS = 13
 let fs = require('fs')
@@ -13,15 +14,15 @@ function error (msg) {
 
 function load_config () {
     try {
-        let data = JSON.parse(fs.readFileSync(PASSWORD_FILE))
-        let u_valid = typeof data.username == 'string'
-        let p_valid = typeof data.password == 'string'
-        if (u_valid && p_valid) {
-            config = data
+        config = JSON.parse(fs.readFileSync(PASSWORD_FILE))
+        for (let key of Object.keys(CONFIG_SCHEMA)) {
+            if (typeof config[key] != CONFIG_SCHEMA[key]) {
+                error('invalid password configuration file')
+            }
         }
     } catch (err) {
         console.log(err)
-        error('unable to read password file')
+        error('unable to read password configuration file')
     }
 }
 
@@ -36,8 +37,9 @@ function compare (input, password) {
 }
 
 
-function reset (username, password) {
+function reset (url, username, password) {
     config = {
+        url: url,
         username: hash(username),
         password: hash(password)
     }
@@ -55,4 +57,4 @@ function check (username, password, callback) {
 load_config()
 
 
-module.exports = { config, reset, check }
+module.exports = { admin_url: config.url, reset, check }

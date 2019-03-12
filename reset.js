@@ -3,14 +3,19 @@
 
 let readline = require('readline-sync')
 let security = require('./security')
-let input_options = { hideEchoBack: true, mask: '*' }
+let mask = { hideEchoBack: true, mask: '*' }
 
 
 function main () {
-    let username = readline.question('input new username: ', input_options)
-    let password = readline.question('input new password: ', input_options)
-    security.reset(username, password)
-    console.log('password updated successfully.')
+    let url = readline.question('input new url for admin interface: ')
+    let username = readline.question('input new username: ', mask)
+    let password = readline.question('input new password: ', mask)
+    if (url.length <= 1 || !url.startsWith('/')) {
+        console.log('Error: URL not valid')
+        process.exit(1)
+    }
+    security.reset(url, username, password)
+    console.log('credentials updated successfully.')
 }
 
 

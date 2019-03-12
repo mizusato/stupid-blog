@@ -9,6 +9,7 @@ let ecstatic = require('ecstatic')
 let argparse = require('argparse')
 let fs = require('fs')
 let data = JSON.parse(fs.readFileSync(DATA_FILE))
+let security = require('./security')
 
 
 function save_data() {
