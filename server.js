@@ -1,49 +1,21 @@
 #!/usr/bin/env node
 
 
-let DATA_FILE = 'data.json'
-
-
 let express = require('express')
-let serve_index = require('serve-index')
 let argparse = require('argparse')
-let fs = require('fs')
+
+let tools = require('./tools')
 let auth = require('./auth')
-
-
-let data = JSON.parse(fs.readFileSync(DATA_FILE))
-
-
-function save_data() {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data))
-}
+let api = require('./api')
 
 
 let server = express()
 
 
-function serve_static(dir, options) {
-    options = options || {}
-    let path = `${__dirname}/${dir}`
-    let base = express.static(path, {
-        fallthrough: !!options.index,
-        dotfiles: (options.dot? 'allow': 'ignore')
-    })
-    if (options.index) {
-        return [base, serve_index(path, {
-            icons: true,
-            hidden: !options.dot
-        })]
-    } else {
-        return base
-    }
-}
+server.disable('etag')
 
 
-server.use((req, res, next) => {
-    console.log(`FROM ${req.ip} ${req.method} ${req.originalUrl}`)
-    next()
-})
+server.use(tools.logger)
 
 
 server.use(`${auth.admin_url}/api/*`, auth.checker)
@@ -54,15 +26,13 @@ server.post(`${auth.admin_url}/login`, (req, res) => {
 })
 
 
-server.use(`${auth.admin_url}`, serve_static('admin'))
+server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 
 
-server.get('/data', (req, res) => {
-    res.json(data)
-})
+server.get('/data', api.get_data)
 
 
-server.use('/files', serve_static('files', { index: true, dot: true }))
+server.use('/files', tools.serve_static('files', { index: true, dot: true }))
 
 
 server.use('/page/:id', (req, res, next) => {
@@ -82,7 +52,7 @@ server.use('/', (req, res, next) => {
 })
 
 
-server.use('/', serve_static('client'))
+server.use('/', tools.serve_static('client'))
 
 
 server.use((err, req, res, next) => {
