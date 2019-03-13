@@ -1,5 +1,6 @@
 let express = require('express')
 let serve_index = require('serve-index')
+let body_parser = require('body-parser')
 
 
 function logger (req, res, next) {
@@ -26,5 +27,15 @@ function serve_static (dir, options) {
 }
 
 
-module.exports = { logger, serve_static }
+let parse_json = [body_parser.text({type:'*/*'}), (req, res, next) => {
+    try {
+        req.data = JSON.parse(req.body)
+        next()
+    } catch (err) {
+        res.status(400).json({ ok: false, msg: '400 Bad Request' })
+    }
+}]
+
+
+module.exports = { logger, serve_static, parse_json }
 

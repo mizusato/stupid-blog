@@ -36,7 +36,12 @@ function get_data (req, res) {
 }
 
 
+function test_admin (req, res) {
+    res.send('Authorized Admin ~~~')
+}
+
+
 gen_etag()
 
 
-module.exports = { get_data }
+module.exports = { get_data, test_admin }

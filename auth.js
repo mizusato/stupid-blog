@@ -52,10 +52,11 @@ function reset (url, username, password) {
 }
 
 
-function check (username, password, callback) {
+function check_login (username, password) {
+    if (!username || !password) { return false }
     let u_ok = compare(username, config.username)
     let p_ok = compare(password, config.password)
-    callback(null, u_ok && p_ok)
+    return u_ok && p_ok
 }
 
 
@@ -79,6 +80,23 @@ function check_token (token) {
 }
 
 
+function login (req, res) {
+    let u = req.data.username || ''
+    let p = req.data.password || ''
+    if (check_login(u, p)) {
+        res.send({ ok: true, success: true, token: gen_token() })
+    } else {
+        res.send({ ok: true, success: false })
+    }
+}
+
+
+function logout (req, res) {
+    gen_token()
+    res.send({ ok: true })
+}
+
+
 function checker (req, res, next) {
     let token = req.get('X-Auth-Token') || ''
     if (token.length > 0 && check_token(token)) {
@@ -92,4 +110,10 @@ function checker (req, res, next) {
 load_config()
 
 
-module.exports = { admin_url: config.url, reset, check, gen_token, checker }
+module.exports = {
+    admin_url: config.url,
+    checker,
+    login,
+    logout,
+    reset
+}

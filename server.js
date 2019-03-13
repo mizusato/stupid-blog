@@ -19,13 +19,8 @@ server.use(tools.logger)
 
 
 server.use(`${auth.admin_url}/api/*`, auth.checker)
-
-
-server.post(`${auth.admin_url}/login`, (req, res) => {
-    res.json({ msg: 'Test OK', token: auth.gen_token() })
-})
-
-
+server.use(`${auth.admin_url}/api/test`, api.test_admin)
+server.post(`${auth.admin_url}/login`, tools.parse_json, auth.login)
 server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 
 
