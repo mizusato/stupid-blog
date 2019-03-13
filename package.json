@@ -16,8 +16,8 @@
   "dependencies": {
     "argparse": "^1.0.10",
     "bcrypt": "^3.0.4",
-    "ecstatic": "^3.3.1",
     "express": "^4.16.4",
-    "readline-sync": "^1.4.9"
+    "readline-sync": "^1.4.9",
+    "serve-index": "^1.9.1"
   }
 }

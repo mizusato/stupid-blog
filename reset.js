@@ -2,7 +2,7 @@
 
 
 let readline = require('readline-sync')
-let security = require('./security')
+let auth = require('./auth')
 let mask = { hideEchoBack: true, mask: '*' }
 
 
@@ -14,7 +14,7 @@ function main () {
         console.log('Error: URL not valid')
         process.exit(1)
     }
-    security.reset(url, username, password)
+    auth.reset(url, username, password)
     console.log('credentials updated successfully.')
     console.log('please restart the server to apply changes.')
 }

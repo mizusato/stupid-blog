@@ -5,11 +5,13 @@ let DATA_FILE = 'data.json'
 
 
 let express = require('express')
-let ecstatic = require('ecstatic')
+let serve_index = require('serve-index')
 let argparse = require('argparse')
 let fs = require('fs')
+let auth = require('./auth')
+
+
 let data = JSON.parse(fs.readFileSync(DATA_FILE))
-let security = require('./security')
 
 
 function save_data() {
@@ -17,7 +19,25 @@ function save_data() {
 }
 
 
-let server = express()    
+let server = express()
+
+
+function serve_static(dir, options) {
+    options = options || {}
+    let path = `${__dirname}/${dir}`
+    let base = express.static(path, {
+        fallthrough: !!options.index,
+        dotfiles: (options.dot? 'allow': 'ignore')
+    })
+    if (options.index) {
+        return [base, serve_index(path, {
+            icons: true,
+            hidden: !options.dot
+        })]
+    } else {
+        return base
+    }
+}
 
 
 server.use((req, res, next) => {
@@ -26,21 +46,23 @@ server.use((req, res, next) => {
 })
 
 
-server.get('/data', async (req, res) => {
-    // delay for debugging
-    await new Promise(resolve => setTimeout(()=>resolve(), '1000'))
+server.use(`${auth.admin_url}/api/*`, auth.checker)
+
+
+server.post(`${auth.admin_url}/login`, (req, res) => {
+    res.json({ msg: 'Test OK', token: auth.gen_token() })
+})
+
+
+server.use(`${auth.admin_url}`, serve_static('admin'))
+
+
+server.get('/data', (req, res) => {
     res.json(data)
 })
 
 
-server.use(ecstatic({
-    baseDir: '/files',
-    root: `files`,
-    showDir: true,
-    autoIndex: false,
-    hidePermissions: true,
-    handleError: false
-}))
+server.use('/files', serve_static('files', { index: true, dot: true }))
 
 
 server.use('/page/:id', (req, res, next) => {
@@ -60,18 +82,11 @@ server.use('/', (req, res, next) => {
 })
 
 
-server.use(ecstatic({
-    baseDir: '/',
-    root: `${__dirname}/client`,
-    showDir: false,
-    cache: 'max-age=0',
-    handleError: false
-}))
+server.use('/', serve_static('client'))
 
 
-server.use((req, res, next) => {
-    let code = res.statusCode
-    if (code == 404) {
+server.use((err, req, res, next) => {
+    if (err.statusCode == 404) {
         res.status(404).sendFile('404.html', { root: __dirname })
     } else {
         res.status(code).send(`<!DOCTYPE html><h1>HTTP ${code}</h1>`)

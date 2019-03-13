@@ -1,9 +1,14 @@
 let CONFIG_SCHEMA = { url: 'string', username: 'string', password: 'string' }
 let PASSWORD_FILE = 'password.json'
-let ROUNDS = 13
+let ROUNDS = 12
+let TOKEN_CHARS = '0123456789qwertyuiopasdfghjklzxcvbnm'
+let TOKEN_LENGTH = 50
+
+
 let fs = require('fs')
 let bcrypt = require('bcrypt')
 let config = null
+let token_hash = ''
 
 
 function error (msg) {
@@ -54,7 +59,37 @@ function check (username, password, callback) {
 }
 
 
+function choose(choices) {
+    return choices[Math.floor(Math.random() * choices.length)]
+}
+
+
+function gen_token () {
+    let token = ''
+    for (let i=0; i<TOKEN_LENGTH; i++) {
+        token += choose(TOKEN_CHARS)
+    }
+    token_hash = hash(token)
+    return token
+}
+
+
+function check_token (token) {
+    return compare(token, token_hash)
+}
+
+
+function checker (req, res, next) {
+    let token = req.get('X-Auth-Token') || ''
+    if (token.length > 0 && check_token(token)) {
+        next()
+    } else {
+        res.status(401).json({ msg: '401 Unauthorized' })
+    }
+}
+
+
 load_config()
 
 
-module.exports = { admin_url: config.url, reset, check }
+module.exports = { admin_url: config.url, reset, check, gen_token, checker }
