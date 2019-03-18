@@ -1,0 +1,149 @@
+body {
+    margin: 0px auto;
+    font-family: sans-serif;
+    background-color: hsl(0, 0%, 90%);
+    width: 100vw;
+    height: 100vh;
+}
+
+
+#react_root {
+    width: 100%;
+    height: 100%;
+}
+
+
+a {
+    color: hsl(233, 90%, 55%);
+    text-decoration: none;
+    outline: none;
+}
+
+
+button {
+    background: linear-gradient(to bottom, hsl(0, 0%, 96%), hsl(0, 0%,92%));
+    border: 1px solid hsl(0, 0%, 70%);
+    border-radius: 3px;
+    color: hsl(0, 0%, 30%);
+    padding: 6px 8px;
+}
+
+
+button:hover:enabled {
+    background: linear-gradient(to bottom, hsl(0, 0%, 99%), hsl(0, 0%, 97%));
+    cursor: pointer;
+}
+
+
+button:active:enabled {
+    background: radial-gradient(hsl(0, 0%, 95%), hsl(0, 0%, 87%));
+}
+
+
+button:focus {
+    border: 1px solid hsl(0, 0%, 60%);
+    outline: 0;
+    outline: none;
+}
+
+
+button:disabled {
+    background: hsl(0, 0%, 90%);
+    color: hsl(0, 0%, 60%);
+}
+
+
+button::-moz-focus-inner {
+  border: 0;
+}
+
+
+dialog-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;    
+}
+
+
+dialog-box {
+    display: block;
+    width: 100%;
+    padding: 2% 3%;
+    background-color: hsl(0, 0%, 98%, 0.94);
+}
+
+
+@media only screen and (min-width: 1224px) {
+    dialog-box {
+        width: 25%;
+        border: 1px solid hsl(0, 0%, 80%);
+        box-shadow: 0 3px 9px hsla(0, 0%, 40%, 0.6)
+    }
+}
+
+
+dialog-title, dialog-content {
+    display: block;
+}
+
+
+dialog-title {
+    font-size: 200%;
+    font-weight: bold;
+    padding-bottom: 2%;
+}
+
+
+hr {
+    color: hsl(0, 0%, 85%);
+}
+
+
+dialog-content {
+    padding-top: 0.5%;
+}
+
+
+dialog-content > * {
+    display: block;    
+    margin: 2.5% auto;    
+}
+
+
+dialog-content > input {
+    font-size: 135%;
+    width: 98%;
+}
+
+
+dialog-content > button {
+    font-size: 140%;
+    min-width: 38%;
+    text-align: center;
+    margin: 4.5% auto 0% auto;
+}
+
+
+form-message {
+    display: block;
+    font-size: 110%;
+    text-align: center;
+    margin: 3.5% 0% 2.5% 0%;
+}
+
+
+form-message[data-status=pending] {
+    display: none;
+}
+
+
+form-message[data-status=failed] {
+    color: hsl(0, 90%, 65%);
+}
+
+
+form-message[data-status=success] {
+    color: hsl(110, 90%, 40%);
+}

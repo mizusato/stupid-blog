@@ -1,3 +1,14 @@
+function concat (...arrays) {
+    let result = []
+    for (let array of arrays) {
+        for (let element of array) {
+            result.push(element)
+        }        
+    }
+    return result
+}
+
+
 function capitalize (string) {
     return string[0].toUpperCase() + string.slice(1, string.length)
 }
@@ -34,7 +45,7 @@ function JSX (structure) {
     if (is_hash(s)) {
         return React.createElement.apply(
             React,
-            Array.concat(
+            concat(
                 [s.tag, extract_props(s)],
                 (s.children)? s.children.map(JSX): []
             )

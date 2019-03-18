@@ -27,6 +27,9 @@ server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 server.get('/data', api.get_data)
 
 
+server.use('/common', tools.serve_static('common'))
+
+
 server.use('/files', tools.serve_static('files', { index: true, dot: true }))
 
 
