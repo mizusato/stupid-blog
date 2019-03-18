@@ -5,6 +5,28 @@ function for_vals_of (hash, f) {
 }
 
 
+function get_token () {
+    return sessionStorage.getItem('token')
+}
+
+
+function set_token (value) {
+    sessionStorage.setItem('token', value)
+}
+
+
+function clear_token () {
+    sessionStorage.removeItem('token')
+}
+
+
+let Loading = (props) => JSX({
+    tag: 'loading-tip',
+    children: [
+        { tag: 'span', children: [MSG.loading] }
+    ]
+})
+
 
 class Login extends React.Component {
     get_form_data () {
@@ -22,7 +44,7 @@ class Login extends React.Component {
         this.refs.password.value = ''
         this.refs.password.focus()
     }
-    info (status, content) {
+    info (status) {
         this.refs.msg.dataset.status = status
         this.refs.msg.textContent = MSG.login_status[status]
         if (status == 'pending') {
@@ -44,9 +66,10 @@ class Login extends React.Component {
     }
     success (token) {
         this.info('success')
+        this.props.success(token)
     }
     submit () {        
-        ;(async () => {
+        (async () => {
             this.pending()
             let data = this.get_form_data()
             let body = JSON.stringify(data)
@@ -115,5 +138,84 @@ class Login extends React.Component {
 }
 
 
+class SideBar extends React.Component {
+    render () {
+        return JSX({
+            tag: 'side-bar',
+            children: this.props.data.article_list.map(article => ({
+                tag: 'div',
+                children: [article.title]
+            }))
+        })
+    }
+}
+
+
+class EditArea extends React.Component {
+    render () {
+        return JSX({
+            tag: 'edit-area'
+        })
+    }
+}
+
+
+class MainView extends React.Component {
+    render () {
+        return JSX({
+            tag: 'main-view',
+            children: [
+                { tag: SideBar, data: this.props.data },
+                { tag: EditArea }
+            ]
+        })
+    }
+}
+
+
+class Admin extends React.Component {
+    constructor (props) {
+        super(props)
+        this.state = {
+            signed_in: (get_token() != null),
+            wait_at_dialog: false,
+            loaded: false
+        }
+        if (this.state.signed_in) {
+            this.load_data()
+        }
+    }
+    load_data () {
+        ;(async () => {
+            var data;
+            try {
+                let raw = await fetch('/data')
+                data = await raw.json()
+                normalize(data)
+            } catch (err) {
+                console.log(err)
+                alert(MSG.failed)
+                window.location.reload()
+            }
+            this.setState({ wait_at_dialog: false, loaded: true, data: data })
+        })()
+    }
+    login (token) {
+        set_token(token)
+        this.load_data()
+        this.setState({ signed_in: true, wait_at_dialog: true })
+    }
+    render () {
+        let { signed_in, loaded, wait_at_dialog, data } = this.state
+        if (!signed_in || wait_at_dialog ) {
+            return JSX({ tag: Login, success: token => this.login(token) })
+        } else if (!loaded) {
+            return JSX({ tag: Loading })
+        }
+        return JSX({ tag: MainView, data: data })
+    }
+}
+
+
 document.title = MSG.admin_title
-ReactDOM.render(React.createElement(Login), react_root)
+ReactDOM.render(React.createElement(Admin), react_root)

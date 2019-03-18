@@ -8,7 +8,7 @@ let MSG = {
     retry: '重新載入',
     go_back: '返回',
     admin_title: '部落格管理後台',
-    login_title: '登入管理介面',
+    login_title: '請先登入',
     login: '登入',
     username: '帳號',
     password: '密碼',
@@ -16,5 +16,5 @@ let MSG = {
         pending: '正在登入...',
         failed: '登入失敗, 請檢查帳號及密碼是否正確',
         success: '登入成功, 正在載入內容...'
-    },
+    }
 }

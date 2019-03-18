@@ -11,6 +11,7 @@ async function get_data() {
         let response = await fetch('/data')
         let data = await response.json()
         // TODO: validate data
+        normalize(data)
         return data
     } catch (err) {
         console.log(err)
@@ -92,7 +93,7 @@ let Header = (props) => JSX({
     tag: 'header',
     children: [
         { tag: TitleBar, data: props.data },
-        { tag: NavBar, data: props.data, pages: props.data.pages }
+        { tag: NavBar, data: props.data, page_list: props.data.page_list }
     ]
 })
 
@@ -100,17 +101,17 @@ let TitleBar = (props) => JSX({
     tag: 'title-bar',
     children: [
         { tag: React.Fragment, children: [
-            { tag: 'h1', children: [props.data.name] },
-            { tag: 'p', children: [props.data.description] }
+            { tag: 'h1', children: [props.data.meta.name] },
+            { tag: 'p', children: [props.data.meta.description] }
         ] }
     ]
 })
 
 let NavBar = (props) => JSX({
     tag: 'nav-bar',
-    children: Array.concat([
-        { tag: Link, to: '/', children: [props.data.home_link] }
-    ], props.pages.map(page => (
+    children: concat([
+        { tag: Link, to: '/', children: [props.data.meta.home_link] }
+    ], props.page_list.map(page => (
         { tag: Link, to: `/page/${page.id}`, children: [page.title] }
     )))
 })
@@ -121,16 +122,16 @@ let NavBar = (props) => JSX({
 
 let Content = (props) => JSX({
     tag: 'content',
-    children: Array.concat([
+    children: concat([
         { tag: Route, path: '/', exact: true,
           render: (route) => JSX({
               ...route,
               tag: ArticleList,
               data: props.data,
-              articles: props.data.articles
+              article_list: props.data.article_list
           })
         }
-    ], props.data.pages.map(page => (
+    ], props.data.page_list.map(page => (
         { tag: Route, path: `/page/${page.id}`,
           render: (route) => JSX({
               ...route,
@@ -139,7 +140,7 @@ let Content = (props) => JSX({
               page: page
           })
         }
-    )), props.data.articles.map(article => (
+    )), props.data.article_list.map(article => (
         { tag: Route, path: `/article/${article.id}`,
           render: (route) => JSX({
               ...route,
@@ -153,13 +154,13 @@ let Content = (props) => JSX({
 
 class ArticleList extends React.Component {
     componentDidMount () {
-        document.title = this.props.data.title
+        document.title = this.props.data.meta.title
     }
     render () {
         let props = this.props
         return JSX({
             tag: 'article-list',
-            children: props.articles.map(article => (
+            children: props.article_list.map(article => (
                 // TODO: route
                 { tag: 'article-item', children: [
                     { tag: Link, className: 'title',
@@ -175,7 +176,7 @@ class ArticleList extends React.Component {
 
 class Page extends React.Component {
     componentDidMount () {
-        let site_title = this.props.data.title
+        let site_title = this.props.data.meta.title
         document.title = `${this.props.page.title} - ${site_title}`
     }
     render () {
@@ -188,7 +189,7 @@ class Page extends React.Component {
 
 class Article extends React.Component {
     componentDidMount () {
-        let site_title = this.props.data.title
+        let site_title = this.props.data.meta.title
         document.title = `${this.props.article.title} - ${site_title}`
     }
     render () {
