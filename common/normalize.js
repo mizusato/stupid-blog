@@ -1,9 +1,11 @@
-function to_array (hash) {
+function to_array (hash, show_hidden) {
     // side effect: add hash[id].id
     let array = []
     for (let id of Object.keys(hash)) {
         hash[id].id = id
-        array.push(hash[id])
+        if (show_hidden || hash[id].visible) {
+            array.push(hash[id])
+        }
     }
     return array
 }
@@ -19,7 +21,7 @@ function id_inc (y, x) {
 }
 
 
-function normalize (data) {
-    data.page_list = to_array(data.pages).sort(id_inc)
-    data.article_list = to_array(data.articles).sort(date_inc)
+function normalize (data, show_hidden = false) {
+    data.page_list = to_array(data.pages, show_hidden).sort(id_inc)
+    data.article_list = to_array(data.articles, show_hidden).sort(date_inc)
 }

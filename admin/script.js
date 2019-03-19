@@ -138,17 +138,114 @@ class Login extends React.Component {
 }
 
 
-class SideBar extends React.Component {
-    render () {
-        return JSX({
-            tag: 'side-bar',
-            children: this.props.data.article_list.map(article => ({
-                tag: 'div',
-                children: [article.title]
-            }))
-        })
-    }
+let Icon = {
+    settings: '/common/icons/settings.png',
+    meta: '/common/icons/meta.png',
+    category: '/common/icons/folder.svg',
+    dirty: '/common/icons/edit.png',
+    doc: '/common/icons/doc.png',
+    add: '/common/icons/add.png',
+    remove: '/common/icons/remove.png'
 }
+
+
+/**
+ *  SFC: BarItem
+ *  
+ *  props: {
+ *      selected: boolean,
+ *      ident: boolean,
+ *      icon: string,
+ *      text: string,
+ *      callback: function
+ *      action: {
+ *          icon: string,
+ *          callback: function
+ *      },
+ *  }
+ */
+let BarItem = (props => JSX({
+    tag: 'bar-item',
+    classList: [props.indent? 'indent': 'no-indent'],
+    dataset: { selected: props.selected },
+    handlers: { click: ev => props.callback && props.callback() },
+    children: concat(
+        [
+            { tag: 'bar-item-body', children: [
+                { tag: 'img', src: Icon[props.icon] },
+                { tag: 'span', children: [props.text] }
+            ] }
+        ],
+        props.action? [
+            { tag: 'img', src: Icon[props.action.icon], handlers: {
+                click: ev => {
+                    ev.stopPropagation()
+                    props.action.callback && props.action.callback()
+                }
+            }}
+        ]: [{ tag: 'span', classList: ['placeholder'] }]
+    )
+}))
+
+
+/**
+ *  SFC: BarList
+ *  
+ *  props: {
+ *      icon: string,
+ *      text: string,
+ *      action: BarItem::action,
+ *      list: [{
+ *          selected: boolean,
+ *          icon: string,
+ *          text: string,
+ *          action: BarItem::action,
+ *          callback: function
+ *      }]
+ *  }
+ */
+let BarList = (props => JSX({
+    tag: 'bar-list',
+    children: concat(
+        [{
+            tag: BarItem, indent: false,
+            icon: props.icon, text: props.text,
+            action: props.action
+        }],
+        props.list.map(item => ({
+            tag: BarItem, indent: true, selected: item.selected,
+            icon: item.icon, text: item.text,
+            action: item.action, callback: item.callback
+        }))
+    )
+}))
+
+
+let SideBar = (props => JSX({
+    tag: 'side-bar',
+    children: concat(
+        [{  tag: BarList, icon: 'settings', text: MSG.settings, list: [{
+            icon: props.edit.settings[0].dirty? 'dirty': 'meta',
+            text: MSG.meta,
+            callback: props.do.switch_to('settings', 'meta'),
+            selected: props.is_selected('settings', 'meta')
+        }] }],
+        ['pages', 'articles'].map(category => ({
+            tag: BarList, icon: 'category', text: MSG[category],
+            action: { icon: 'add', callback: props.do.add(category) },
+            list: props.edit[category].map(item => ({
+                icon: item.dirty? 'dirty': 'doc',
+                text: item.data.title,
+                callback: props.do.switch_to(category, item.name),
+                selected: props.is_selected(category, item.name),
+                action: {
+                    icon: 'remove',
+                    callback: props.do.remove(category, item.name)
+                }
+            }))
+        }))
+    )
+}))
 
 
 class EditArea extends React.Component {
@@ -161,11 +258,63 @@ class EditArea extends React.Component {
 
 
 class MainView extends React.Component {
+    constructor (props) {
+        super(props)
+        this.state = {}
+        this.state.selected = { category: 'settings', item: 'meta' }
+        this.state.edit = {
+            settings: [{
+                name: 'meta',
+                dirty: false,
+                data: Object.assign({}, this.props.data.meta)
+            }],
+            pages: this.props.data.page_list.map(page => ({
+                name: page.id,
+                dirty: false,
+                data: Object.assign({}, page)
+            })),
+            articles: this.props.data.article_list.map(article => ({
+                name: article.id,
+                dirty: false,
+                data: Object.assign({}, article)
+            }))
+        }
+        this.is_selected = ((category, item) => {
+            return (
+                category == this.state.selected.category
+                && item == this.state.selected.item
+            )
+        })
+        this.helpers = {
+            switch_to: (category, item) => {
+                return (() => {
+                    console.log('switch to', category, item)
+                })
+            },
+            remove: (category, item) => {
+                return (() => {
+                    if (category == 'settings') {
+                        throw Error('invalid operation')
+                    }
+                    console.log('remove', category, item)
+                })
+            },
+            add: (category) => {
+                return (() => {
+                    if (category == 'meta') {
+                        throw Error('invalid operation')
+                    }
+                    console.log('add', category)
+                })
+            }
+        }
+    }
     render () {
         return JSX({
             tag: 'main-view',
             children: [
-                { tag: SideBar, data: this.props.data },
+                { tag: SideBar, do: this.helpers, edit: this.state.edit,
+                  is_selected: this.is_selected },
                 { tag: EditArea }
             ]
         })
@@ -191,7 +340,7 @@ class Admin extends React.Component {
             try {
                 let raw = await fetch('/data')
                 data = await raw.json()
-                normalize(data)
+                normalize(data, true)
             } catch (err) {
                 console.log(err)
                 alert(MSG.failed)

@@ -16,5 +16,9 @@ let MSG = {
         pending: '正在登入...',
         failed: '登入失敗, 請檢查帳號及密碼是否正確',
         success: '登入成功, 正在載入內容...'
-    }
+    },
+    settings: '設定',
+    meta: '基本資訊',
+    articles: '文章',
+    pages: '頁面'
 }

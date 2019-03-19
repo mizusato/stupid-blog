@@ -32,6 +32,12 @@ function extract_props (structure) {
             for (let event of Object.keys(s.handlers)) {
                 props[`on${capitalize(event)}`] = s.handlers[event]
             }
+        } else if (key == 'classList') {
+            props['class'] = s[key].join(' ')
+        } else if (key == 'dataset') {
+            for (let item of Object.keys(s[key])) {
+                props[`data-${item}`] = s[key][item]
+            }
         } else {
             props[key] = s[key]
         }
