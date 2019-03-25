@@ -1,3 +1,6 @@
+'use strict';
+
+
 function for_vals_of (hash, f) {
     for (let key of Object.keys(hash)) {
         f(hash[key])
@@ -68,8 +71,8 @@ class Login extends React.Component {
         this.info('success')
         this.props.success(token)
     }
-    submit () {        
-        (async () => {
+    submit () {
+        ;(async () => {
             this.pending()
             let data = this.get_form_data()
             let body = JSON.stringify(data)
@@ -151,7 +154,7 @@ let Icon = {
 
 /**
  *  SFC: BarItem
- *  
+ *
  *  props: {
  *      selected: boolean,
  *      ident: boolean,
@@ -190,7 +193,7 @@ let BarItem = (props => JSX({
 
 /**
  *  SFC: BarList
- *  
+ *
  *  props: {
  *      icon: string,
  *      text: string,
@@ -248,10 +251,40 @@ let SideBar = (props => JSX({
 }))
 
 
+class MetaEditor extends FormComponent {
+    render () {
+        let dirty = this.dirty.bind(this)
+        let save = this.save.bind(this)
+        let can_input = !this.props.is_locked
+        let can_save = this.props.item.dirty && !this.props.is_locked
+        return JSX({
+            tag: 'meta-editor',
+            children: [ { tag: 'meta-form', ref: 'form', children: [
+                { tag: 'h1', children: [MSG.meta] },
+                { tag: TextInput, name: 'title', label: MSG.site_title,
+                  disabled: !can_input, dirty },
+                { tag: TextInput, name: 'name', label: MSG.site_name,
+                  disabled: !can_input, dirty },
+                { tag: TextInput, name: 'description', label: MSG.site_desc,
+                  textarea: true, disabled: !can_input, dirty },
+                { tag: 'button', children: [MSG.update],
+                  disabled: !can_save, onClick: save }
+            ] } ]
+        })
+    }
+}
+
+
 class EditArea extends React.Component {
     render () {
+        let item = this.props.edit.settings[0]
         return JSX({
-            tag: 'edit-area'
+            tag: 'edit-area',
+            children: [
+                { tag: MetaEditor, item, is_locked: this.props.is_locked,
+                  dirty: this.props.do.dirty('settings', 'meta'),
+                  save: this.props.do.save('settings', 'meta') }
+            ]
         })
     }
 }
@@ -260,43 +293,39 @@ class EditArea extends React.Component {
 class MainView extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {}
-        this.state.selected = { category: 'settings', item: 'meta' }
-        this.state.edit = {
-            settings: [{
-                name: 'meta',
-                dirty: false,
-                data: Object.assign({}, this.props.data.meta)
-            }],
-            pages: this.props.data.page_list.map(page => ({
-                name: page.id,
-                dirty: false,
-                data: Object.assign({}, page)
-            })),
-            articles: this.props.data.article_list.map(article => ({
-                name: article.id,
-                dirty: false,
-                data: Object.assign({}, article)
-            }))
+        this.state = {
+            is_locked: false,
+            selected: { category: 'settings', id: 'meta' },
+            edit: {}
         }
-        this.is_selected = ((category, item) => {
+        this.is_selected = ((category, id) => {
             return (
                 category == this.state.selected.category
-                && item == this.state.selected.item
+                && id == this.state.selected.id
             )
         })
-        this.helpers = {
-            switch_to: (category, item) => {
+        for (let category of Object.keys(this.props.data)) {
+            if (category == 'list') { continue }
+            this.state.edit[category] = this.props.data.list[category].map(
+                item_object => ({
+                    id: item_object.id,
+                    dirty: false,
+                    data: Object.assign({}, item_object)
+                })
+            )
+        }
+        this.sidebar_helpers = {
+            switch_to: (category, id) => {
                 return (() => {
-                    console.log('switch to', category, item)
+                    console.log('switch to', category, id)
                 })
             },
-            remove: (category, item) => {
+            remove: (category, id) => {
                 return (() => {
                     if (category == 'settings') {
                         throw Error('invalid operation')
                     }
-                    console.log('remove', category, item)
+                    console.log('remove', category, id)
                 })
             },
             add: (category) => {
@@ -308,14 +337,62 @@ class MainView extends React.Component {
                 })
             }
         }
+        this.editor_helpers = {
+            dirty: (category, id) => {
+                return (delta => {
+                    let item_object = this.get(category, id)
+                    item_object.dirty = true
+                    Object.assign(item_object.data, delta)
+                    this.forceUpdate()
+                })
+            },
+            save: (category, id) => {
+                return (async () => {
+                    let item_object = this.get(category, id)
+                    if (!item_object.dirty) { return }
+                    let options = {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            category,
+                            item_object
+                        }),
+                        headers: {
+                            'X-Auth-Token': get_token()
+                        }
+                    }
+                    try {
+                        this.setState({ is_locked: true })
+                        let raw = await fetch('api/update', options)
+                        let res = await raw.json()
+                        if (!res.ok) { throw new Error(res.msg) }
+                        item_object.id = item_object.data.id
+                        item_object.dirty = false
+                    } catch (err) {
+                        console.log(err)
+                        alert(MSG.update_failed + ': ' + err.message)
+                    }
+                    this.state.is_locked = false
+                    this.forceUpdate()
+                })
+            }
+        }
+    }
+    get (category, id) {
+        let all = this.state.edit[category]
+        for (let I of all) {
+            if (I.id == id) {
+                return I
+            }
+        }
     }
     render () {
         return JSX({
             tag: 'main-view',
             children: [
-                { tag: SideBar, do: this.helpers, edit: this.state.edit,
-                  is_selected: this.is_selected },
-                { tag: EditArea }
+                { tag: SideBar, do: this.sidebar_helpers,
+                  edit: this.state.edit, is_selected: this.is_selected },
+                { tag: EditArea, do: this.editor_helpers,
+                  edit: this.state.edit, is_locked: this.state.is_locked }
             ]
         })
     }

@@ -7,6 +7,7 @@ let MSG = {
     failed: '載入資料失敗',
     retry: '重新載入',
     go_back: '返回',
+    homepage: '首頁',
     admin_title: '部落格管理後台',
     login_title: '請先登入',
     login: '登入',
@@ -20,5 +21,10 @@ let MSG = {
     settings: '設定',
     meta: '基本資訊',
     articles: '文章',
-    pages: '頁面'
+    pages: '頁面',
+    site_name: '網站名稱',
+    site_desc: '網站描述',
+    site_title: '網站標題',
+    update: '更新',
+    update_failed: '更新失敗'
 }

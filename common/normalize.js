@@ -22,6 +22,8 @@ function id_inc (y, x) {
 
 
 function normalize (data, show_hidden = false) {
-    data.page_list = to_array(data.pages, show_hidden).sort(id_inc)
-    data.article_list = to_array(data.articles, show_hidden).sort(date_inc)
+    data.list = {}
+    data.list.settings = to_array(data.settings, true).sort(id_inc)
+    data.list.pages = to_array(data.pages, show_hidden).sort(id_inc)
+    data.list.articles = to_array(data.articles, show_hidden).sort(date_inc)
 }

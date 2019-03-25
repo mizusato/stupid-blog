@@ -48,7 +48,7 @@ class Blog extends React.Component {
         let content = {
             loading: () => JSX({
                 tag: 'blog',
-                className: 'loading',                
+                className: 'loading',
                 children: [
                     { tag: 'wrapper', children: [MSG.loading] }
                 ]
@@ -93,7 +93,7 @@ let Header = (props) => JSX({
     tag: 'header',
     children: [
         { tag: TitleBar, data: props.data },
-        { tag: NavBar, data: props.data, page_list: props.data.page_list }
+        { tag: NavBar, data: props.data, page_list: props.data.list.pages }
     ]
 })
 
@@ -101,8 +101,8 @@ let TitleBar = (props) => JSX({
     tag: 'title-bar',
     children: [
         { tag: React.Fragment, children: [
-            { tag: 'h1', children: [props.data.meta.name] },
-            { tag: 'p', children: [props.data.meta.description] }
+            { tag: 'h1', children: [props.data.settings.meta.name] },
+            { tag: 'p', children: [props.data.settings.meta.description] }
         ] }
     ]
 })
@@ -110,7 +110,7 @@ let TitleBar = (props) => JSX({
 let NavBar = (props) => JSX({
     tag: 'nav-bar',
     children: concat([
-        { tag: Link, to: '/', children: [props.data.meta.home_link] }
+        { tag: Link, to: '/', children: [MSG.homepage] }
     ], props.page_list.map(page => (
         { tag: Link, to: `/page/${page.id}`, children: [page.title] }
     )))
@@ -128,10 +128,10 @@ let Content = (props) => JSX({
               ...route,
               tag: ArticleList,
               data: props.data,
-              article_list: props.data.article_list
+              article_list: props.data.list.articles
           })
         }
-    ], props.data.page_list.map(page => (
+    ], props.data.list.pages.map(page => (
         { tag: Route, path: `/page/${page.id}`,
           render: (route) => JSX({
               ...route,
@@ -140,7 +140,7 @@ let Content = (props) => JSX({
               page: page
           })
         }
-    )), props.data.article_list.map(article => (
+    )), props.data.list.articles.map(article => (
         { tag: Route, path: `/article/${article.id}`,
           render: (route) => JSX({
               ...route,
@@ -154,7 +154,7 @@ let Content = (props) => JSX({
 
 class ArticleList extends React.Component {
     componentDidMount () {
-        document.title = this.props.data.meta.title
+        document.title = this.props.data.settings.meta.title
     }
     render () {
         let props = this.props
@@ -176,7 +176,7 @@ class ArticleList extends React.Component {
 
 class Page extends React.Component {
     componentDidMount () {
-        let site_title = this.props.data.meta.title
+        let site_title = this.props.data.settings.meta.title
         document.title = `${this.props.page.title} - ${site_title}`
     }
     render () {
@@ -189,7 +189,7 @@ class Page extends React.Component {
 
 class Article extends React.Component {
     componentDidMount () {
-        let site_title = this.props.data.meta.title
+        let site_title = this.props.data.settings.meta.title
         document.title = `${this.props.article.title} - ${site_title}`
     }
     render () {
@@ -209,4 +209,3 @@ class Article extends React.Component {
 
 // Render the Root Component
 ReactDOM.render(React.createElement(Blog), react_root)
-

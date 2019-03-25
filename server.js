@@ -19,7 +19,7 @@ server.use(tools.logger)
 
 
 server.use(`${auth.admin_url}/api/*`, auth.checker)
-server.use(`${auth.admin_url}/api/test`, api.test_admin)
+server.use(`${auth.admin_url}/api/update`, tools.parse_json, api.update)
 server.post(`${auth.admin_url}/login`, tools.parse_json, auth.login)
 server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 
