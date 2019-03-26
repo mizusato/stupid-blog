@@ -45,7 +45,7 @@ function update (req, res) {
         }
     }
     let req_object = req.data
-    console.log(req_object)
+    // console.log(req_object)
     let category = req_object.category
     let item_object = req_object.item_object
     if (!category || !item_object) { reject(); return }
