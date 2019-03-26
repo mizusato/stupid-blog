@@ -26,5 +26,20 @@ let MSG = {
     site_desc: '網站描述',
     site_title: '網站標題',
     update: '更新',
-    update_failed: '更新失敗'
+    update_failed: '更新失敗',
+    edit: {
+        article: '編輯文章',
+        page: '編輯頁面',
+        title: '標題',
+        tags: 'Tags',
+        date: '發表日期',
+        visible: '可見',
+        summary: '摘要',
+        content: '內容',
+        tabs: {
+            info: '修改資訊',
+            content: '編輯內容'
+        }
+    },
+    preview: '預覧'
 }

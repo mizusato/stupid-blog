@@ -297,7 +297,7 @@ bar-item-body > * {
 }
 
 
-meta-editor {
+.editor {
     width: 100%;
     height: 100%;
     display: flex;
@@ -306,31 +306,66 @@ meta-editor {
 }
 
 
-meta-form {
+.editor > :first-child {
     width: 90%;
     height: 90%;
 }
 
 
-meta-form > h1 {
-    margin: 1% 0% 4% 0%;
+.editor h1 {
+    margin: 1% 0% 2.5% 0%;
 }
 
 
-meta-form > text-field {
+.editor text-field {
     width: 100%;
-    margin: 0% 0% 3% 0%;
+    margin: 0% 0% 1.2% 0%;
 }
 
-meta-form > text-field > label {
+
+.editor label {
     font-size: 110%;
 }
 
-meta-form > text-field > input, meta-form > text-field > textarea {
+
+.editor text-field > input, .editor text-field > textarea {
     font-size: 155%;
 }
 
-meta-form > button {
+
+.editor button {
     min-width: 10%;
     font-size: 145%;
+}
+
+
+.form-body {
+    margin-bottom: 1.5%;
+}
+
+
+editor-tab-bar {
+    display: block;
+    font-size: 110%;
+    margin-bottom: 1.5%;
+}
+
+
+editor-tab-bar > a {
+    margin-right: 2%;
+}
+
+
+textarea[name=summary] {
+    min-height: 16vh;
+}
+
+
+textarea[name=content] {
+    min-height: 50vh;
+}
+
+
+a.preview {
+    font-size: 120%;
 }
