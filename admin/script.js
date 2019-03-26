@@ -291,6 +291,18 @@ let ArticleInfoForm = (props => JSX({
 }))
 
 
+let PageInfoForm = (props => JSX({
+    tag: 'page-info-form', class: 'form-body',
+    style: { display: props.tab == 'info'? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'title', label: MSG.edit.title,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: OptionInput, name: 'visible', label: MSG.edit.visible,
+          disabled: !props.can_input, dirty: props.dirty }
+    ]
+}))
+
+
 let EditorTabBar = (props => JSX({
     tag: 'editor-tab-bar',
     children: props.tabs.map(tab => ({
@@ -303,25 +315,12 @@ let EditorTabBar = (props => JSX({
 }))
 
 
-class PageEditor extends FormComponent {
-    render () {
-        return JSX({
-            tag: 'page-editor', class: 'editor',
-            children: [ { tag: 'page-form', ref: 'form', children: [
-                { tag: 'h1', children: [MSG.edit.page] },
-                { tag: EditorTabBar, switch_to, tabs: this.tabs,
-                  tab: this.state.tab }
-            ] } ]
-        })
-    }
-}
-
-
-class ArticleEditor extends FormComponent {
-    constructor (props) {
+class PageArticleEditor extends FormComponent {
+    constructor (props, type) {
         super(props)
         this.state = { tab: 'info' }
         this.tabs = ['info', 'content']
+        this.type = type
     }
     switch_to (tab) {
         this.setState({ tab })
@@ -333,13 +332,18 @@ class ArticleEditor extends FormComponent {
         let { dirty, save, can_input, can_save } = this.form_info()
         let switch_to = this.switch_to.bind(this)
         let preview = this.preview.bind(this)
+        let type = this.type
+        let InfoForm = ({
+            page: PageInfoForm,
+            article: ArticleInfoForm
+        })[type]
         return JSX({
-            tag: 'article-editor', class: 'editor',
-            children: [ { tag: 'article-form', ref: 'form', children: [
-                { tag: 'h1', children: [MSG.edit.article] },
+            tag: `${type}-editor`, class: 'editor',
+            children: [ { tag: `${type}-form`, ref: 'form', children: [
+                { tag: 'h1', children: [MSG.edit[type]] },
                 { tag: EditorTabBar, switch_to, tabs: this.tabs,
                   tab: this.state.tab },
-                { tag: ArticleInfoForm, can_input, dirty,
+                { tag: InfoForm, can_input, dirty,
                   tab: this.state.tab },
                 { tag: ContentForm, can_input, dirty, preview,
                   tab: this.state.tab, },
@@ -347,6 +351,20 @@ class ArticleEditor extends FormComponent {
                   disabled: !can_save, onClick: save }
             ] } ]
         })
+    }
+}
+
+
+class PageEditor extends PageArticleEditor {
+    constructor (props) {
+        super(props, 'page')
+    }
+}
+
+
+class ArticleEditor extends PageArticleEditor {
+    constructor (props) {
+        super(props, 'article')
     }
 }
 
