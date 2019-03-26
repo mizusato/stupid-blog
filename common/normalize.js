@@ -11,8 +11,8 @@ function to_array (hash, show_hidden) {
 }
 
 
-function date_inc (y, x) {
-    return x.date < y.date
+function date_dec (y, x) {
+    return x.date > y.date
 }
 
 
@@ -25,5 +25,5 @@ function normalize (data, show_hidden = false) {
     data.list = {}
     data.list.settings = to_array(data.settings, true).sort(id_inc)
     data.list.pages = to_array(data.pages, show_hidden).sort(id_inc)
-    data.list.articles = to_array(data.articles, show_hidden).sort(date_inc)
+    data.list.articles = to_array(data.articles, show_hidden).sort(date_dec)
 }

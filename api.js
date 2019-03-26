@@ -76,7 +76,7 @@ function update (req, res) {
         }
     } else {
         // ADD: record does not exist
-        if (old_id != new_id) { reject(); return }
+        // if (old_id != new_id) { reject(); return }
         if (category == 'settings') { reject(); return }
         if (data[category][new_id]) {
             reject(`ID "${new_id}" already used`)

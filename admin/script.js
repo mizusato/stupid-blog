@@ -1,6 +1,28 @@
 'use strict';
 
 
+function now () {
+    return (
+        (new Date(Date.now() - (new Date()).getTimezoneOffset()*60*1000))
+            .toISOString()
+            .replace('T', ' ')
+            .replace(/:\d\d\.\d+Z/, '')
+    )
+}
+
+
+function gen_id () {
+    let id_chars = '0123456789qwertyuiopasdfghjklzxcvbnm'
+    let length = 10
+    let result = ''
+    for (let i=0; i<10; i++) {
+        let t = Math.floor(id_chars.length*Math.random())
+        result += id_chars[t]
+    }
+    return result
+}
+
+
 function for_vals_of (hash, f) {
     for (let key of Object.keys(hash)) {
         f(hash[key])
@@ -101,51 +123,24 @@ class Login extends React.Component {
         })()
     }
     render () {
-        return JSX({
-            tag: 'dialog-wrapper',
-            children: [{
-                tag: 'dialog-box',
-                children: [
-                    {
-                        tag: 'dialog-title',
-                        children: [MSG.login_title]
-                    },
-                    { tag: 'hr' },
-                    {
-                        tag: 'dialog-content',
-                        children: [
-                            {
-                                tag: 'input',
-                                ref: 'username',
-                                placeholder: MSG.username
-                            },
-                            {
-                                tag: 'input',
-                                type: 'password',
-                                ref: 'password',
-                                placeholder: MSG.password,
-                                handlers: { keyUp: ev => {
-                                    if (ev.key == 'Enter') {
-                                        this.submit()
-                                    }
-                                }}
-                            },
-                            {
-                                tag: 'form-message',
-                                ref: 'msg',
-                                children: ['']
-                            },
-                            {
-                                tag: 'button',
-                                ref: 'button',
-                                children: [MSG.login],
-                                handlers: { click: ev => this.submit() }
-                            }
-                        ]
-                    }
-                ]
-            }]
-        })
+        return JSX({ tag: 'dialog-wrapper', children: [{
+            tag: 'dialog-box', children: [
+                { tag: 'dialog-title', children: [MSG.login_title] },
+                { tag: 'hr' },
+                { tag: 'dialog-content', children: [
+                    { tag: 'input', ref: 'username',
+                      placeholder: MSG.username },
+                    { tag: 'input', type: 'password', ref: 'password',
+                      placeholder: MSG.password,
+                      handlers: {
+                          keyUp: ev => (ev.key == 'Enter') && this.submit()
+                      } },
+                    { tag: 'form-message', ref: 'msg', children: [''] },
+                    { tag: 'button', ref: 'button', children: [MSG.login],
+                      handlers: { click: ev => this.submit() } }
+                  ]
+              } ]
+        } ] })
     }
 }
 
@@ -279,6 +274,8 @@ let ArticleInfoForm = (props => JSX({
     children: [
         { tag: TextInput, name: 'title', label: MSG.edit.title,
           disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'id', label: MSG.edit.id,
+          disabled: !props.can_input, dirty: props.dirty },
         { tag: TextInput, name: 'tags', label: MSG.edit.tags,
           disabled: !props.can_input, dirty: props.dirty },
         { tag: TextInput, name: 'date', label: MSG.edit.date,
@@ -296,6 +293,8 @@ let PageInfoForm = (props => JSX({
     style: { display: props.tab == 'info'? 'block': 'none' },
     children: [
         { tag: TextInput, name: 'title', label: MSG.edit.title,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'id', label: MSG.edit.id,
           disabled: !props.can_input, dirty: props.dirty },
         { tag: OptionInput, name: 'visible', label: MSG.edit.visible,
           disabled: !props.can_input, dirty: props.dirty }
@@ -444,8 +443,36 @@ class MainView extends React.Component {
                 })
             },
             add: (category) => {
+                let blank = {
+                    pages: {
+                        id: 'new-page',
+                        title: MSG.blank.page,
+                        visible: false,
+                        content: MSG.blank.default_content
+                    },
+                    articles: {
+                        id: 'new-article',
+                        title: MSG.blank.article,
+                        tags: '',
+                        date: '1970-01-01 00:00',
+                        summary: MSG.blank.default_summary,
+                        visible: false,
+                        content: MSG.blank.default_content
+                    }
+                }
                 return (() => {
                     if (category == 'settings') { throw Error('invalid') }
+                    let new_data = mapval(blank[category], x => x)
+                    new_data.id += ('-' + gen_id())
+                    if ( new_data.date ) { new_data.date = now() }
+                    let new_item = {
+                        id: new_data.id,
+                        dirty: true,
+                        data: new_data
+                    }
+                    let items = this.state.edit[category]
+                    this.state.edit[category] = [new_item, ...items]
+                    this.forceUpdate()
                     console.log('add', category)
                 })
             }
@@ -478,7 +505,11 @@ class MainView extends React.Component {
                         let raw = await fetch('api/update', options)
                         let res = await raw.json()
                         if (!res.ok) { throw new Error(res.msg) }
-                        item_object.id = item_object.data.id
+                        let new_id = item_object.data.id
+                        if (this.is_selected(category, id)) {
+                            this.state.selected.id = new_id
+                        }
+                        item_object.id = new_id
                         item_object.dirty = false
                     } catch (err) {
                         console.log(err)
@@ -498,12 +529,16 @@ class MainView extends React.Component {
             }
         }
     }
+    is_selected (category_, id_) {
+        let { category, id } = this.state.selected
+        return (category == category_ && id == id_)
+    }
     render () {
         let { category, id } = this.state.selected
         let item = this.get(category, id)
         let Editor = Editors[category]
         let editor_helpers = mapval(this.editor_helpers, f => f(category, id))
-        let is_selected = ((c, i) => (c == category) && (i == id))
+        let is_selected = this.is_selected.bind(this)
         return JSX({
             tag: 'main-view',
             children: [

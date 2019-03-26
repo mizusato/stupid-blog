@@ -30,6 +30,7 @@ let MSG = {
     edit: {
         article: '編輯文章',
         page: '編輯頁面',
+        id: 'ID',
         title: '標題',
         tags: 'Tags',
         date: '發表日期',
@@ -41,5 +42,11 @@ let MSG = {
             content: '編輯內容'
         }
     },
-    preview: '預覧'
+    preview: '預覧',
+    blank: {
+        article: '空白文章',
+        page: '空白頁面',
+        default_summary: 'lorem ipsum',
+        default_content: 'lorem ipsum dolor sit amet...'
+    }
 }

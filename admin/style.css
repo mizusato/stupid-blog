@@ -307,8 +307,8 @@ bar-item-body > * {
 
 
 .editor > :first-child {
-    width: 90%;
-    height: 90%;
+    width: 93%;
+    height: 96%;
 }
 
 
@@ -363,7 +363,7 @@ editor-tab-bar > a.disabled {
 
 
 textarea[name=summary] {
-    min-height: 16vh;
+    height: 8vh;
 }
 
 
