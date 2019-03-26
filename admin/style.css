@@ -356,6 +356,12 @@ editor-tab-bar > a {
 }
 
 
+editor-tab-bar > a.disabled {
+    color: hsl(0, 0%, 15%);
+    cursor: default;
+}
+
+
 textarea[name=summary] {
     min-height: 16vh;
 }

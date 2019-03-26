@@ -295,7 +295,8 @@ let EditorTabBar = (props => JSX({
     tag: 'editor-tab-bar',
     children: props.tabs.map(tab => ({
         tag: 'a',
-        href: 'javascript:void(0)',
+        className: (props.tab == tab)? 'disabled': 'enabled',
+        href: (props.tab == tab)? null: 'javascript:void(0)',
         children: [MSG.edit.tabs[tab]],
         onClick: ev => props.switch_to(tab)
     }))
@@ -304,7 +305,14 @@ let EditorTabBar = (props => JSX({
 
 class PageEditor extends FormComponent {
     render () {
-        return JSX({ tag: 'page-editor', class: 'editor' })
+        return JSX({
+            tag: 'page-editor', class: 'editor',
+            children: [ { tag: 'page-form', ref: 'form', children: [
+                { tag: 'h1', children: [MSG.edit.page] },
+                { tag: EditorTabBar, switch_to, tabs: this.tabs,
+                  tab: this.state.tab }
+            ] } ]
+        })
     }
 }
 
@@ -329,7 +337,8 @@ class ArticleEditor extends FormComponent {
             tag: 'article-editor', class: 'editor',
             children: [ { tag: 'article-form', ref: 'form', children: [
                 { tag: 'h1', children: [MSG.edit.article] },
-                { tag: EditorTabBar, switch_to, tabs: this.tabs },
+                { tag: EditorTabBar, switch_to, tabs: this.tabs,
+                  tab: this.state.tab },
                 { tag: ArticleInfoForm, can_input, dirty,
                   tab: this.state.tab },
                 { tag: ContentForm, can_input, dirty, preview,
