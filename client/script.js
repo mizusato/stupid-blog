@@ -20,6 +20,16 @@ function render_formulas (root) {
 
 
 /**
+ *  Render Code Blocks using highlight.js
+ */
+function render_code_blocks (root) {
+    root.querySelectorAll('pre.code').forEach(element => {
+        hljs.highlightBlock(element)
+    })
+}
+
+
+/**
  *  Fetch data from server using the HTML5 fetch API
  *
  *  @return Object (null when data is unavailable or invalid)
@@ -197,6 +207,7 @@ class Page extends React.Component {
         let site_title = this.props.data.settings.meta.title
         document.title = `${this.props.page.title} - ${site_title}`
         render_formulas(this.refs.root)
+        render_code_blocks(this.refs.root)
     }
     render () {
         return JSX({
@@ -212,6 +223,7 @@ class Article extends React.Component {
         let site_title = this.props.data.settings.meta.title
         document.title = `${this.props.article.title} - ${site_title}`
         render_formulas(this.refs.root)
+        render_code_blocks(this.refs.root)
     }
     render () {
         let props = this.props
