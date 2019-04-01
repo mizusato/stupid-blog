@@ -1,6 +1,25 @@
 'use strict';
 
 
+let Blank = {
+    pages: {
+        id: 'new-page',
+        title: MSG.blank.page,
+        visible: false,
+        content: MSG.blank.default_content
+    },
+    articles: {
+        id: 'new-article',
+        title: MSG.blank.article,
+        tags: '',
+        date: '1970-01-01 00:00',
+        summary: MSG.blank.default_summary,
+        visible: false,
+        content: MSG.blank.default_content
+    }
+}
+
+
 function now () {
     return (
         (new Date(Date.now() - (new Date()).getTimezoneOffset()*60*1000))
@@ -54,205 +73,26 @@ function clear_token () {
 }
 
 
-let Loading = (props) => JSX({
-    tag: 'loading-tip',
-    children: [
-        { tag: 'span', children: [MSG.loading] }
-    ]
-})
-
-
-class Login extends React.Component {
-    get_form_data () {
-        let username = this.refs.username.value
-        let password = this.refs.password.value
-        return { username, password }
-    }
-    disable_form() {
-        for_vals_of(this.refs, x => x.disabled = true)
-    }
-    enable_form() {
-        for_vals_of(this.refs, x => x.disabled = false)
-    }
-    retype_password () {
-        this.refs.password.value = ''
-        this.refs.password.focus()
-    }
-    info (status) {
-        this.refs.msg.dataset.status = status
-        this.refs.msg.textContent = MSG.login_status[status]
-        if (status == 'pending') {
-            this.refs.button.textContent = MSG.login_status.pending
-            this.disable_form()
-        } else if (status == 'failed') {
-            this.refs.button.textContent = MSG.login
-            this.enable_form()
-            this.retype_password()
-        } else if (status == 'success') {
-            this.refs.button.style.display = 'none'
+async function send_to_api (operation, data) {
+    let options = {
+        method: 'POST',
+        body: data,
+        headers: {
+            'X-Auth-Token': get_token()
         }
     }
-    pending () {
-        this.info('pending')
-    }
-    failed () {
-        this.info('failed')
-    }
-    success (token) {
-        this.info('success')
-        this.props.success(token)
-    }
-    submit () {
-        ;(async () => {
-            this.pending()
-            let data = this.get_form_data()
-            let body = JSON.stringify(data)
-            var res;
-            try {
-                let raw = await fetch('login', { method: 'POST', body: body })
-                res = await raw.json()
-            } catch (err) {
-                console.log(err)
-                this.failed()
-            }
-            if (res.success) {
-                this.success(res.token)
-            } else {
-                this.failed()
-            }
-        })()
-    }
-    render () {
-        return JSX({ tag: 'dialog-wrapper', children: [{
-            tag: 'dialog-box', children: [
-                { tag: 'dialog-title', children: [MSG.login_title] },
-                { tag: 'hr' },
-                { tag: 'dialog-content', children: [
-                    { tag: 'input', ref: 'username',
-                      placeholder: MSG.username },
-                    { tag: 'input', type: 'password', ref: 'password',
-                      placeholder: MSG.password,
-                      handlers: {
-                          keyUp: ev => (ev.key == 'Enter') && this.submit()
-                      } },
-                    { tag: 'form-message', ref: 'msg', children: [''] },
-                    { tag: 'button', ref: 'button', children: [MSG.login],
-                      handlers: { click: ev => this.submit() } }
-                  ]
-              } ]
-        } ] })
+    try {
+        let raw = await fetch(`api/${operation}`, options)
+        if (raw.status != 200) { throw new Error(`HTTP ${raw.status}`) }
+        let res = await raw.json()
+        if (!res.ok) { throw new Error(res.msg) }
+        return res
+    } catch (err) {
+        console.log(err)
+        alert(MSG.update_failed + ': ' + err.message)
+        throw err
     }
 }
-
-
-let Icon = {
-    settings: '/common/icons/settings.png',
-    meta: '/common/icons/meta.png',
-    category: '/common/icons/folder.svg',
-    dirty: '/common/icons/edit.png',
-    doc: '/common/icons/doc.png',
-    add: '/common/icons/add.png',
-    remove: '/common/icons/remove.png'
-}
-
-
-/**
- *  SFC: BarItem
- *
- *  props: {
- *      selected: boolean,
- *      ident: boolean,
- *      icon: string,
- *      text: string,
- *      callback: function
- *      action: {
- *          icon: string,
- *          callback: function
- *      },
- *  }
- */
-let BarItem = (props => JSX({
-    tag: 'bar-item',
-    classList: [props.indent? 'indent': 'no-indent'],
-    dataset: { selected: props.selected },
-    handlers: { click: ev => props.callback && props.callback() },
-    children: concat(
-        [
-            { tag: 'bar-item-body', children: [
-                { tag: 'img', src: Icon[props.icon] },
-                { tag: 'span', children: [props.text] }
-            ] }
-        ],
-        props.action? [
-            { tag: 'img', src: Icon[props.action.icon], handlers: {
-                click: ev => {
-                    ev.stopPropagation()
-                    props.action.callback && props.action.callback()
-                }
-            }}
-        ]: [{ tag: 'span', classList: ['placeholder'] }]
-    )
-}))
-
-
-/**
- *  SFC: BarList
- *
- *  props: {
- *      icon: string,
- *      text: string,
- *      action: BarItem::action,
- *      list: [{
- *          selected: boolean,
- *          icon: string,
- *          text: string,
- *          action: BarItem::action,
- *          callback: function
- *      }]
- *  }
- */
-let BarList = (props => JSX({
-    tag: 'bar-list',
-    children: concat(
-        [{
-            tag: BarItem, indent: false,
-            icon: props.icon, text: props.text,
-            action: props.action
-        }],
-        props.list.map(item => ({
-            tag: BarItem, indent: true, selected: item.selected,
-            icon: item.icon, text: item.text,
-            action: item.action, callback: item.callback
-        }))
-    )
-}))
-
-
-let SideBar = (props => JSX({
-    tag: 'side-bar',
-    children: concat(
-        [{  tag: BarList, icon: 'settings', text: MSG.settings, list: [{
-            icon: props.edit.settings[0].dirty? 'dirty': 'meta',
-            text: MSG.meta,
-            callback: props.do.switch_to('settings', 'meta'),
-            selected: props.is_selected('settings', 'meta')
-        }] }],
-        ['pages', 'articles'].map(category => ({
-            tag: BarList, icon: 'category', text: MSG[category],
-            action: { icon: 'add', callback: props.do.add(category) },
-            list: props.edit[category].map(item => ({
-                icon: item.dirty? 'dirty': 'doc',
-                text: item.data.title,
-                callback: props.do.switch_to(category, item.id),
-                selected: props.is_selected(category, item.id),
-                action: {
-                    icon: 'remove',
-                    callback: props.do.remove(category, item.id)
-                }
-            }))
-        }))
-    )
-}))
 
 
 let ContentForm = (props => JSX({
@@ -426,6 +266,7 @@ class MainView extends React.Component {
                 item_object => ({
                     id: item_object.id,
                     dirty: false,
+                    is_new: false,
                     data: Object.assign({}, item_object)
                 })
             )
@@ -433,53 +274,91 @@ class MainView extends React.Component {
         this.sidebar_helpers = {
             switch_to: (category, id) => {
                 return (() => {
+                    console.log('switch to', category, id)
                     this.setState({ selected: { category, id } })
                 })
             },
             remove: (category, id) => {
-                return (() => {
-                    if (category == 'settings') { throw Error('invalid') }
+                let list = this.state.edit[category]
+                let get_next = index => {
+                    let try_ = [index, index-1]
+                    for (let i of try_) {
+                        if (0 <= i && i < list.length) {
+                            return i
+                        }
+                    }
+                    return -1
+                }
+                let remove_at_list = () => {
+                    let index = -2
+                    for (let i=0; i<list.length; i++) {
+                        if (list[i].id == id) {
+                            list.splice(i, 1)
+                            index = i
+                            break
+                        }
+                    }
+                    if (this.is_selected(category, id)) {
+                        let jump2index = get_next(index)
+                        if (jump2index != -1) {
+                            this.state.selected.id = list[jump2index].id
+                        } else {
+                            this.state.selected = {
+                                category: 'settings', id: 'meta'
+                            }
+                        }
+                    }
+                    // forceUpdate in caller
+                }
+                return (async () => {
                     console.log('remove', category, id)
+                    if (category == 'settings') { throw Error('invalid') }
+                    if (this.state.is_locked) { return }
+                    let item_object = this.get(category, id)
+                    let item_info = `\n>> ${item_object.data.title} (${id})`
+                    if (!confirm(MSG.confirm_remove[category] + item_info)) {
+                        return
+                    }
+                    if (item_object.is_new) {
+                        remove_at_list()
+                        this.forceUpdate()
+                        return
+                    }
+                    let data = { category, id }
+                    this.setState({ is_locked: true })
+                    try {
+                        await send_to_api('remove', JSON.stringify(data))
+                        remove_at_list()
+                    } finally {
+                        this.state.is_locked = false
+                        this.forceUpdate()
+                    }
                 })
             },
             add: (category) => {
-                let blank = {
-                    pages: {
-                        id: 'new-page',
-                        title: MSG.blank.page,
-                        visible: false,
-                        content: MSG.blank.default_content
-                    },
-                    articles: {
-                        id: 'new-article',
-                        title: MSG.blank.article,
-                        tags: '',
-                        date: '1970-01-01 00:00',
-                        summary: MSG.blank.default_summary,
-                        visible: false,
-                        content: MSG.blank.default_content
-                    }
-                }
                 return (() => {
+                    console.log('add', category)
                     if (category == 'settings') { throw Error('invalid') }
-                    let new_data = mapval(blank[category], x => x)
+                    let new_data = mapval(Blank[category], x => x)
                     new_data.id += ('-' + gen_id())
                     if ( new_data.date ) { new_data.date = now() }
                     let new_item = {
                         id: new_data.id,
                         dirty: true,
+                        is_new: true,
                         data: new_data
                     }
                     let items = this.state.edit[category]
                     this.state.edit[category] = [new_item, ...items]
+                    this.state.selected = { category, id: new_data.id }
                     this.forceUpdate()
-                    console.log('add', category)
                 })
             }
         }
         this.editor_helpers = {
             dirty: (category, id) => {
                 return (delta => {
+                    console.log('dirty', category, id)
                     let item_object = this.get(category, id)
                     item_object.dirty = true
                     Object.assign(item_object.data, delta)
@@ -488,35 +367,27 @@ class MainView extends React.Component {
             },
             save: (category, id) => {
                 return (async () => {
+                    console.log('save', category, id)
                     let item_object = this.get(category, id)
                     if (!item_object.dirty) { return }
-                    let options = {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            category,
-                            item_object
-                        }),
-                        headers: {
-                            'X-Auth-Token': get_token()
-                        }
+                    let req_data = {
+                        category,
+                        item_object
                     }
+                    this.setState({ is_locked: true })
                     try {
-                        this.setState({ is_locked: true })
-                        let raw = await fetch('api/update', options)
-                        let res = await raw.json()
-                        if (!res.ok) { throw new Error(res.msg) }
+                        await send_to_api('update', JSON.stringify(req_data))
                         let new_id = item_object.data.id
                         if (this.is_selected(category, id)) {
                             this.state.selected.id = new_id
                         }
                         item_object.id = new_id
                         item_object.dirty = false
-                    } catch (err) {
-                        console.log(err)
-                        alert(MSG.update_failed + ': ' + err.message)
+                        item_object.is_new = false
+                    } finally {
+                        this.state.is_locked = false
+                        this.forceUpdate()
                     }
-                    this.state.is_locked = false
-                    this.forceUpdate()
                 })
             }
         }
@@ -534,6 +405,7 @@ class MainView extends React.Component {
         return (category == category_ && id == id_)
     }
     render () {
+        console.log('render', this.state)
         let { category, id } = this.state.selected
         let item = this.get(category, id)
         let Editor = Editors[category]
@@ -569,15 +441,34 @@ class Admin extends React.Component {
         ;(async () => {
             var data;
             try {
-                let raw = await fetch('/data')
-                data = await raw.json()
-                normalize(data, true)
+                let raw_v = await fetch('validate', {
+                    method: 'POST',
+                    body: JSON.stringify({ token: get_token() })
+                })
+                let data_v = await raw_v.json()
+                if (data_v.ok) {
+                    let raw = await fetch('/data')
+                    data = await raw.json()
+                    normalize(data, true)
+                    this.setState({
+                        wait_at_dialog: false, loaded: true, data: data
+                    })
+                } else {
+                    console.log('previous login is invalid')
+                    clear_token()
+                    if (this.state.wait_at_dialog) {
+                        // rare case but handling needed
+                        alert('invalid token')
+                        window.location.reload()
+                    } else {
+                        this.setState({ signed_in: false })
+                    }
+                }
             } catch (err) {
                 console.log(err)
                 alert(MSG.failed)
                 window.location.reload()
             }
-            this.setState({ wait_at_dialog: false, loaded: true, data: data })
         })()
     }
     login (token) {

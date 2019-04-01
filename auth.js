@@ -97,6 +97,11 @@ function logout (req, res) {
 }
 
 
+function validate (req, res) {
+    res.json({ ok: check_token(req.data.token) })
+}
+
+
 function checker (req, res, next) {
     let token = req.get('X-Auth-Token') || ''
     if (token.length > 0 && check_token(token)) {
@@ -115,5 +120,6 @@ module.exports = {
     checker,
     login,
     logout,
-    reset
+    validate,
+    reset,
 }

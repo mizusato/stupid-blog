@@ -36,14 +36,37 @@ function get_data (req, res) {
 }
 
 
-function update (req, res) {
-    function reject (msg) {
+function rejector (res) {
+    return function (msg) {
         if (msg) {
             res.json({ ok: false, msg })
         } else {
             res.status(400).end()
         }
     }
+}
+
+
+function remove (req, res) {
+    let reject = rejector(res)
+    let req_object = req.data
+    // console.log(req_object)
+    let category = req_object.category
+    let id = req_object.id
+    if (!category || !id) { reject(); return }
+    if (!data[category]) { reject(); return }
+    if (!data[category][id]) {
+        reject(`ID ${id} does not exist`)
+        return
+    }
+    delete data[category][id]
+    res.json({ ok: true })
+    gen_etag()
+}
+
+
+function update (req, res) {
+    let reject = rejector(res)
     let req_object = req.data
     // console.log(req_object)
     let category = req_object.category
@@ -54,8 +77,12 @@ function update (req, res) {
     let new_id = item_object.data.id
     let new_data = item_object.data
     delete new_data['id']
-    if (data[category][old_id]) {
+    if (!item_object.is_new) {
         // record exists
+        if(!data[category][old_id]) {
+            reject(`ID ${old_id} does not exist`)
+            return
+        }
         if (old_id != new_id) {
             // RENAME: new id is different from the old
             if (category == 'settings') { reject(); return }
@@ -92,4 +119,4 @@ function update (req, res) {
 gen_etag()
 
 
-module.exports = { get_data, update }
+module.exports = { get_data, remove, update }

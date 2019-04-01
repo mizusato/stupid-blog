@@ -26,7 +26,7 @@ let MSG = {
     site_desc: '網站描述',
     site_title: '網站標題',
     update: '更新',
-    update_failed: '更新失敗',
+    update_failed: '更新後台資料失敗',
     edit: {
         article: '編輯文章',
         page: '編輯頁面',
@@ -48,5 +48,9 @@ let MSG = {
         page: '空白頁面',
         default_summary: 'lorem ipsum',
         default_content: 'lorem ipsum dolor sit amet...'
+    },
+    confirm_remove: {
+        articles: '確定要刪除這篇文章嗎？',
+        pages: '確定要刪除這個頁面嗎？'
     }
 }

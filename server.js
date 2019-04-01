@@ -10,26 +10,19 @@ let api = require('./api')
 
 
 let server = express()
-
-
 server.disable('etag')
-
-
 server.use(tools.logger)
 
-
 server.use(`${auth.admin_url}/api/*`, auth.checker)
-server.use(`${auth.admin_url}/api/update`, tools.parse_json, api.update)
+server.post(`${auth.admin_url}/api/remove`, tools.parse_json, api.remove)
+server.post(`${auth.admin_url}/api/update`, tools.parse_json, api.update)
 server.post(`${auth.admin_url}/login`, tools.parse_json, auth.login)
+server.post(`${auth.admin_url}/validate`, tools.parse_json, auth.validate)
 server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 
 
 server.get('/data', api.get_data)
-
-
 server.use('/common', tools.serve_static('common'))
-
-
 server.use('/files', tools.serve_static('files', { index: true, dot: true }))
 
 
@@ -38,17 +31,14 @@ server.use('/page/:id', (req, res, next) => {
     server.handle(req, res, next)
 })
 
-
 server.use('/article/:id', (req, res, next) => {
     req.url = '/'
     server.handle(req, res, next)
 })
 
-
 server.use('/', (req, res, next) => {
     next()
 })
-
 
 server.use('/', tools.serve_static('client'))
 
@@ -57,7 +47,10 @@ server.use((err, req, res, next) => {
     if (err.statusCode == 404) {
         res.status(404).sendFile('404.html', { root: __dirname })
     } else {
-        res.status(code).send(`<!DOCTYPE html><h1>HTTP ${code}</h1>`)
+        let code = err.statusCode || 500
+        res.status(code).send(
+            `<!DOCTYPE html><h1>HTTP ${code}</h1><pre>${err.message}</pre>`
+        )
     }
 })
 
