@@ -20,6 +20,16 @@ a {
 }
 
 
+f {
+    display: inline;
+}
+
+
+equation {
+    display: block;
+}
+
+
 blog, wrapper, header, title-bar, nav-bar, content, article-list, article-item, summary, page {
     display: block;
 }

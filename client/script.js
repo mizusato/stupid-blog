@@ -2,6 +2,24 @@ let { Route, Link, BrowserRouter: Router } = ReactRouterDOM
 
 
 /**
+ *  Render Formulas using KaTeX
+ */
+function render_formulas (root) {
+    var inlines = root.querySelectorAll('f')
+    var equations = root.querySelectorAll('equation')
+    ;[...inlines, ...equations].forEach(element => {
+	    let is_inline = (element.tagName == 'EQUATION')
+	    let LaTeX = element.textContent
+        try {
+	        katex.render(LaTeX, element, { displayMode: is_inline })
+        } catch (err) {
+            alert(`Error Rendering Formulas: ${err.message}`)
+        }
+    })
+}
+
+
+/**
  *  Fetch data from server using the HTML5 fetch API
  *
  *  @return Object (null when data is unavailable or invalid)
@@ -178,10 +196,12 @@ class Page extends React.Component {
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
         document.title = `${this.props.page.title} - ${site_title}`
+        render_formulas(this.refs.root)
     }
     render () {
         return JSX({
             tag: 'page',
+            ref: 'root',
             dangerouslySetInnerHTML: { __html: this.props.page.content }
         })
     }
@@ -191,11 +211,13 @@ class Article extends React.Component {
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
         document.title = `${this.props.article.title} - ${site_title}`
+        render_formulas(this.refs.root)
     }
     render () {
         let props = this.props
         return JSX({
             tag: 'article',
+            ref: 'root',
             children: [
                 { tag: 'h1', className: 'title',
                   children: [props.article.title] },
