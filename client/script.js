@@ -182,7 +182,7 @@ class Page extends React.Component {
     render () {
         return JSX({
             tag: 'page',
-            children: [this.props.page.content]
+            dangerouslySetInnerHTML: { __html: this.props.page.content }
         })
     }
 }
@@ -199,8 +199,8 @@ class Article extends React.Component {
             children: [
                 { tag: 'h1', className: 'title',
                   children: [props.article.title] },
-                { tag: 'p',
-                  children: [props.article.content] }
+                { tag: 'div',
+                  dangerouslySetInnerHTML: { __html: props.article.content } }
             ]
         })
     }

@@ -101,7 +101,7 @@ let ContentForm = (props => JSX({
     children: [
         { tag: TextInput, name: 'content', label: MSG.edit.content,
           disabled: !props.can_input, dirty: props.dirty,
-          textarea: true },
+          textarea: true, use_code_editor: true },
         { tag: 'a', href: 'javascript:void(0)', children: [MSG.preview],
           onClick: ev => this.props.preview(), className: 'preview' }
     ]

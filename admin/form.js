@@ -7,6 +7,7 @@ let TextInput = (props => JSX({
         { tag: 'label', for: props.name, children: [props.label] },
         { tag: props.textarea? 'textarea': 'input', disabled: props.disabled,
           name: props.name, placeholder: props.label, spellcheck: 'false',
+          className: props.use_code_editor? 'code': null,
           onInput: ev => props.dirty() }
     ]
 }))
@@ -29,6 +30,9 @@ function prepare_data (form, data) {
     for (let field of fields) {
         if (field.type != 'checkbox') {
             field.value = data[field.name]
+            if (field._update_editor_value) {
+                field._update_editor_value()
+            }
         } else {
             field.checked = data[field.name]
         }
@@ -56,9 +60,32 @@ class FormComponent extends React.Component {
     }
     componentDidMount () {
         this.put_data(this.props.item.data)
+        for (let I of this.refs.form.querySelectorAll('textarea.code')) {
+            I.style.display = 'none'
+            let p = I.parentElement
+            let loader = document.createElement('div')
+            loader.classList.add('ace')
+            let editor = ace.edit(loader, { mode: 'ace/mode/html' })
+            editor.getSession().setValue(I.value)
+            let force_set = false
+            editor.getSession().on('change', () => {
+                if (!force_set) {
+                    I.value = editor.getSession().getValue()
+                    I.dispatchEvent(new Event('input', { bubbles: true }))
+                }
+            })
+            p.insertBefore(loader, I)
+            I._update_editor_value = () => {
+                force_set = true
+                editor.getSession().setValue(I.value)
+                force_set = false
+            }
+        }
     }
     componentWillReceiveProps(new_props) {
-        this.put_data(new_props.item.data)
+        if (new_props.item.id != this.props.item.id) {
+            this.put_data(new_props.item.data)
+        }
     }
     put_data (data) {
         prepare_data(this.refs.form, data)

@@ -195,7 +195,7 @@ main-view {
 
 
 side-bar {
-    flex-basis: 21%;
+    min-width: 21vw;
     background-color: hsl(0, 0%, 96%);
     border-right: 1px solid hsl(0, 0%, 70%);
     overflow-y: auto;
@@ -204,6 +204,7 @@ side-bar {
 
 edit-area {
     flex-grow: 1;
+    overflow-x: hidden;
     background-color: hsl(0, 0%, 99%);
 }
 
@@ -367,8 +368,10 @@ textarea[name=summary] {
 }
 
 
-textarea[name=content] {
+div.ace {
     min-height: 50vh;
+    font-family: 'monospace';
+    font-size: 155%;
 }
 
 
