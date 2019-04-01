@@ -66,6 +66,7 @@ class FormComponent extends React.Component {
             let loader = document.createElement('div')
             loader.classList.add('ace')
             let editor = ace.edit(loader, { mode: 'ace/mode/html' })
+            editor.getSession().setUseWrapMode(true)
             editor.getSession().setValue(I.value)
             let force_set = false
             editor.getSession().on('change', () => {

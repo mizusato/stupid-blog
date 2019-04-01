@@ -25,8 +25,8 @@ let MSG = {
     site_name: '網站名稱',
     site_desc: '網站描述',
     site_title: '網站標題',
-    update: '更新',
-    update_failed: '更新後台資料失敗',
+    save: '儲存',
+    save_failed: '更新後台資料失敗',
     edit: {
         article: '編輯文章',
         page: '編輯頁面',

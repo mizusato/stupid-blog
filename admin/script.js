@@ -89,7 +89,7 @@ async function send_to_api (operation, data) {
         return res
     } catch (err) {
         console.log(err)
-        alert(MSG.update_failed + ': ' + err.message)
+        alert(MSG.save_failed + ': ' + err.message)
         throw err
     }
 }
@@ -186,7 +186,7 @@ class PageArticleEditor extends FormComponent {
                   tab: this.state.tab },
                 { tag: ContentForm, can_input, dirty, preview,
                   tab: this.state.tab, },
-                { tag: 'button', children: [MSG.update],
+                { tag: 'button', children: [MSG.save],
                   disabled: !can_save, onClick: save }
             ] } ]
         })
@@ -221,7 +221,7 @@ class MetaEditor extends FormComponent {
                   disabled: !can_input, dirty },
                 { tag: TextInput, name: 'description', label: MSG.site_desc,
                   textarea: true, disabled: !can_input, dirty },
-                { tag: 'button', children: [MSG.update],
+                { tag: 'button', children: [MSG.save],
                   disabled: !can_save, onClick: save }
             ] } ]
         })
