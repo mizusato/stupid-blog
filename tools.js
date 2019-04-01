@@ -4,7 +4,8 @@ let body_parser = require('body-parser')
 
 
 function logger (req, res, next) {
-    console.log(`FROM ${req.ip} ${req.method} ${req.originalUrl}`)
+    let time = (new Date()).toLocaleString()
+    console.log(`[${time}] <${req.ip}> ${req.method} ${req.originalUrl}`)
     next()
 }
 
@@ -38,4 +39,3 @@ let parse_json = [body_parser.text({type:'*/*'}), (req, res, next) => {
 
 
 module.exports = { logger, serve_static, parse_json }
-

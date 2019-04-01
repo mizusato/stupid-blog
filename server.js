@@ -62,9 +62,12 @@ function main() {
     })
     parser.addArgument(['-p','--port'], { defaultValue: '9487' })
     let args = parser.parseArgs()
-    server.listen(
-        args.port, () => console.log(`listening on port ${args.port}`)
-    )
+    let delay = api.SAVE_DELAY
+    console.log(`*** SAVE_DELAY is set to ${delay}ms`)
+    console.log(`*** Data change will be saved to disk with this delay value`)
+    server.listen(args.port, () => {
+        console.log(`listening on port ${args.port}`)
+    })
 }
 
 

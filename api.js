@@ -1,4 +1,5 @@
 let DATA_FILE = 'data.json'
+let SAVE_DELAY = 1500
 
 
 let fs = require('fs')
@@ -6,6 +7,12 @@ let fs = require('fs')
 
 let data = JSON.parse(fs.readFileSync(DATA_FILE))
 let etag = null
+let waiting = false
+
+
+function time () {
+    return (new Date()).toLocaleString()
+}
 
 
 function gen_etag () {
@@ -19,10 +26,29 @@ function gen_etag () {
 }
 
 
-
-function save () {
-    gen_etag()
+function save_to_disk () {
+    console.log(`[${time()}] saving data...`)
     fs.writeFileSync(DATA_FILE, JSON.stringify(data))
+    console.log(`[${time()}] data saved successfully`)
+}
+
+
+function schedule_save_to_disk () {
+    if (!waiting) {
+        waiting = true
+        setTimeout(() => {
+            waiting = false
+            save_to_disk()
+        }, SAVE_DELAY)
+    }
+}
+
+
+function save_to_memory () {
+    console.log(`[${time()}] memory data updated`)
+    gen_etag()
+    // console.log(`[${time()}] refresh etag = ${etag}`)
+    schedule_save_to_disk()
 }
 
 
@@ -61,7 +87,7 @@ function remove (req, res) {
     }
     delete data[category][id]
     res.json({ ok: true })
-    gen_etag()
+    save_to_memory()
 }
 
 
@@ -93,12 +119,12 @@ function update (req, res) {
             }
             data[category][new_id] = new_data
             delete data[category][old_id]
-            gen_etag()
+            save_to_memory()
             res.json({ ok: true })
         } else {
             // UPDATE: new id is the same as the old
             data[category][old_id] = new_data
-            gen_etag()
+            save_to_memory()
             res.json({ ok: true })
         }
     } else {
@@ -110,7 +136,7 @@ function update (req, res) {
             return
         }
         data[category][new_id] = new_data
-        gen_etag()
+        save_to_memory()
         res.json({ ok: true })
     }
 }
@@ -119,4 +145,4 @@ function update (req, res) {
 gen_etag()
 
 
-module.exports = { get_data, remove, update }
+module.exports = { get_data, remove, update, SAVE_DELAY }
