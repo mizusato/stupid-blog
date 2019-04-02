@@ -2,6 +2,27 @@ let { Route, Link, BrowserRouter: Router } = ReactRouterDOM
 
 
 /**
+ *  Get Color from String
+ */
+function get_color (string) {
+    let base = 'cnjq3rivn9340vnwescm' + string.length.toString(16)
+    let input = string + base
+    let [a, b, c] = [6601, 4477, 5050]
+    let M = 9487
+    for (let char of input) {
+        let x = char.codePointAt(0) * 2333
+        a = ((57 + x*a + (b*c) % M)*x + x) % M
+        b = ((99 + x*b + (c*a) % M)*x + x) % M
+        c = ((41 + x*c + (a*b) % M)*x + x) % M
+    }
+    let H = a % 360
+    let S = 60 + (b % 40)
+    let L = 40 + (c % 5)
+    return `hsl(${H}, ${S}%, ${L}%)`
+}
+
+
+/**
  *  Render Formulas using KaTeX
  */
 function render_formulas (root) {
@@ -183,19 +204,6 @@ let Content = (props) => JSX({
 class ArticleList extends React.Component {
     constructor (props) {
         super(props)
-        let tag = this.props.match.params.tag
-        if (tag) {
-            let filter = (article => {
-                return article.tags
-                    .split(',')
-                    .map(name => name.trim())
-                    .indexOf(tag) != -1
-            })
-            this.tag = tag
-            this.article_list = this.props.data.list.articles.filter(filter)
-        } else {
-            this.article_list = this.props.data.list.articles
-        }
     }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
@@ -206,7 +214,18 @@ class ArticleList extends React.Component {
         }
     }
     render () {
-        return JSX({ tag: 'article-list', children: this.article_list.map(
+        let article_list = this.props.data.list.articles
+        let tag = this.props.match.params.tag        
+        if (tag) {
+            let filter = (article => {
+                return article.tags
+                    .split(',')
+                    .map(name => name.trim())
+                    .indexOf(tag) != -1
+            })
+            article_list = article_list.filter(filter)
+        }
+        return JSX({ tag: 'article-list', children: article_list.map(
             article => ({ tag: 'article-item', children: [
                 { tag: Link,
                   to: `/article/${article.id}`,
@@ -221,7 +240,7 @@ class ArticleList extends React.Component {
                     ] },
                     { tag: 'tags', "data-n": article.tags.length,
                       children: [
-                          { tag: 'img', src: '/common/icons/tag.svg' },
+                          { tag: 'img', src: '/common/icons/tags.svg' },
                           { tag: 'span', children: (
                               article.tags
                                   .split(',')
@@ -229,7 +248,10 @@ class ArticleList extends React.Component {
                                   .map(name => ({
                                       tag: 'tag', children: [{
                                           tag: Link, children: [name],
-                                          to: `/tag/${name}`
+                                          to: `/tag/${name}`,
+                                          style: {
+                                              color: get_color(name)
+                                          }
                                       }]
                                   }))
                           ) }
