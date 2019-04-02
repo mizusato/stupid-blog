@@ -36,6 +36,11 @@ server.use('/article/:id', (req, res, next) => {
     server.handle(req, res, next)
 })
 
+server.use('/tag/:name', (req, res, next) => {
+    req.url = '/'
+    server.handle(req, res, next)
+})
+
 server.use('/', (req, res, next) => {
     next()
 })

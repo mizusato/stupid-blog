@@ -31,8 +31,6 @@ function render_code_blocks (root) {
 
 /**
  *  Fetch data from server using the HTML5 fetch API
- *
- *  @return Object (null when data is unavailable or invalid)
  */
 async function get_data() {
     try {
@@ -150,62 +148,107 @@ let NavBar = (props) => JSX({
 
 let Content = (props) => JSX({
     tag: 'content',
-    children: concat([
+    children: [
         { tag: Route, path: '/', exact: true,
           render: (route) => JSX({
               ...route,
               tag: ArticleList,
-              data: props.data,
-              article_list: props.data.list.articles
+              data: props.data
           })
-        }
-    ], props.data.list.pages.map(page => (
-        { tag: Route, path: `/page/${page.id}`,
+        },
+        { tag: Route, path: '/page/:id',
           render: (route) => JSX({
               ...route,
               tag: Page,
-              data: props.data,
-              page: page
+              data: props.data
           })
-        }
-    )), props.data.list.articles.map(article => (
-        { tag: Route, path: `/article/${article.id}`,
+        },
+        { tag: Route, path: '/article/:id',
           render: (route) => JSX({
               ...route,
               tag: Article,
-              data: props.data,
-              article: article
+              data: props.data
+          })
+        },
+        { tag: Route, path: '/tag/:tag',
+          render: (route) => JSX({
+              ...route,
+              tag: ArticleList,
+              data: props.data
           })
         }
-    )))
+    ]
 })
 
 class ArticleList extends React.Component {
+    constructor (props) {
+        super(props)
+        let tag = this.props.match.params.tag
+        if (tag) {
+            let filter = (article => {
+                return article.tags
+                    .split(',')
+                    .map(name => name.trim())
+                    .indexOf(tag) != -1
+            })
+            this.tag = tag
+            this.article_list = this.props.data.list.articles.filter(filter)
+        } else {
+            this.article_list = this.props.data.list.articles
+        }
+    }
     componentDidMount () {
-        document.title = this.props.data.settings.meta.title
+        let site_title = this.props.data.settings.meta.title
+        if (this.tag) {
+            document.title = `${this.tag} - ${site_title}`
+        } else {
+            document.title = site_title
+        }
     }
     render () {
-        let props = this.props
-        return JSX({
-            tag: 'article-list',
-            children: props.article_list.map(article => (
-                // TODO: route
-                { tag: 'article-item', children: [
-                    { tag: Link, className: 'title',
-                      to: `/article/${article.id}`,
-                      children: [article.title] },
-                    { tag: 'summary',
-                      children: [article.summary] }
+        return JSX({ tag: 'article-list', children: this.article_list.map(
+            article => ({ tag: 'article-item', children: [
+                { tag: Link,
+                  to: `/article/${article.id}`,
+                  children: [
+                      { tag: 'h2', children: [article.title] },
+                      { tag: 'summary', children: [article.summary] },
+                  ] },
+                { tag: 'item-detail', children: [
+                    { tag: 'publish-date', children: [
+                        { tag: 'img', src: '/common/icons/clock.svg' },
+                        { tag: 'span', children: [article.date] }
+                    ] },
+                    { tag: 'tags', "data-n": article.tags.length,
+                      children: [
+                          { tag: 'img', src: '/common/icons/tag.svg' },
+                          { tag: 'span', children: (
+                              article.tags
+                                  .split(',')
+                                  .map(name => name.trim())
+                                  .map(name => ({
+                                      tag: 'tag', children: [{
+                                          tag: Link, children: [name],
+                                          to: `/tag/${name}`
+                                      }]
+                                  }))
+                          ) }
+                      ] }
                 ] }
-            ))
-        })
+            ] } )
+        )})
     }
 }
 
 class Page extends React.Component {
+    constructor (props) {
+        super(props)
+        let id = this.props.match.params.id
+        this.page = this.props.data.pages[id]
+    }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
-        document.title = `${this.props.page.title} - ${site_title}`
+        document.title = `${this.page.title} - ${site_title}`
         render_formulas(this.refs.root)
         render_code_blocks(this.refs.root)
     }
@@ -213,15 +256,20 @@ class Page extends React.Component {
         return JSX({
             tag: 'page',
             ref: 'root',
-            dangerouslySetInnerHTML: { __html: this.props.page.content }
+            dangerouslySetInnerHTML: { __html: this.page.content }
         })
     }
 }
 
 class Article extends React.Component {
+    constructor (props) {
+        super(props)
+        let id = this.props.match.params.id
+        this.article = this.props.data.articles[id]
+    }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
-        document.title = `${this.props.article.title} - ${site_title}`
+        document.title = `${this.article.title} - ${site_title}`
         render_formulas(this.refs.root)
         render_code_blocks(this.refs.root)
     }
@@ -232,9 +280,9 @@ class Article extends React.Component {
             ref: 'root',
             children: [
                 { tag: 'h1', className: 'title',
-                  children: [props.article.title] },
+                  children: [this.article.title] },
                 { tag: 'div',
-                  dangerouslySetInnerHTML: { __html: props.article.content } }
+                  dangerouslySetInnerHTML: { __html: this.article.content } }
             ]
         })
     }
