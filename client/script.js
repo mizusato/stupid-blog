@@ -324,6 +324,7 @@ class ArticleList extends React.Component {
     constructor (props) {
         super(props)
         this.init(props)
+        this.first_load = true
     }
     componentWillReceiveProps (props) {
         this.init(props)
@@ -335,7 +336,10 @@ class ArticleList extends React.Component {
         } else {
             document.title = site_title
         }
-        scroll_to_content()
+        if (!this.first_load) {
+            scroll_to_content()
+        }
+        this.first_load = false
     }
     init (props) {
         let get_ipp = () => {
