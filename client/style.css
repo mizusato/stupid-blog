@@ -53,6 +53,7 @@ button::-moz-focus-inner {
 
 blog, wrapper, header, title-bar, nav-bar, content, article-list, article-item, summary, page, article-detail { display: block; }
 tags, tag, publish-date { display: inline-block; }
+tag[data-current="true"] { font-weight: bold; }
 
 
 blog {

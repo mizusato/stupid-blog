@@ -1,4 +1,34 @@
+'use strict';
+
+
 let { Route, Link, BrowserRouter: Router } = ReactRouterDOM
+
+
+/**
+ *  Encode Query for URL
+ */
+ function encode_query (hash) {
+     let items = (
+         Object.keys(hash)
+            .map(k => `${k}=${encodeURIComponent(hash[k])}`)
+            .join('&')
+        )
+    return items? `?${items}`: ''
+}
+
+
+/**
+ *  Decode Query for URL
+ */
+ function decode_query (query_str) {
+     let trimed = query_str.slice(1,query_str.length)
+     let hash = {}
+     trimed.split('&').forEach(item => {
+         let [k,v] = item.split('=')
+         hash[k] = decodeURIComponent(v)
+     })
+     return hash
+ }
 
 
 /**
@@ -84,7 +114,7 @@ class PagerPlugin {
         this.ipp = ipp
         this.onchange = onchange
         this.num_pages = Math.ceil(total / ipp)
-        this.current = initial
+        this.current = (0 <= initial && initial < this.num_pages)? initial: 0
     }
     goto (page) {
         if (typeof page == 'number') {
@@ -311,7 +341,8 @@ let TagList = (props => JSX(
             .split(',')
             .map(name => name.trim())
             .map(name => ({
-                tag: 'tag', children: [{
+                tag: 'tag', 'data-current': (name === props.current),
+                children: [{
                     tag: Link, children: [name],
                     to: `/tag/${name}`,
                     style: { color: get_color(name) }
@@ -324,10 +355,14 @@ class ArticleList extends React.Component {
     constructor (props) {
         super(props)
         this.init(props)
-        this.first_load = true
+        this.page_switch_lock = false
     }
     componentWillReceiveProps (props) {
-        this.init(props)
+        if (!this.page_switch_lock) {
+            this.init(props)
+        } else {
+            this.page_switch_lock = false
+        }
     }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
@@ -336,10 +371,6 @@ class ArticleList extends React.Component {
         } else {
             document.title = site_title
         }
-        if (!this.first_load) {
-            scroll_to_content()
-        }
-        this.first_load = false
     }
     init (props) {
         let get_ipp = () => {
@@ -359,12 +390,20 @@ class ArticleList extends React.Component {
             article_list = article_list.filter(filter)
         }
         this.article_list = article_list
+        let query = decode_query(this.props.location.search)
         let total = article_list.length
-        let initial = 0
+        let initial = (Number.parseInt(query.pn)-1) || 0
         let ipp = get_ipp()
         let onchange = () => {
+            console.log('onchage', this.pager.current+1)
             this.forceUpdate()
-            this.refs.root.scrollIntoView()
+            setTimeout(scroll_to_content, 0)
+            console.log('updated')
+            let path = this.props.location.pathname
+            let query = encode_query({ pn: this.pager.current+1 })
+            this.page_switch_lock = true
+            console.log('push', path+query)
+            this.props.history.push(path + query)
         }
         this.pager = new PagerPlugin(total, initial, ipp, onchange)
         this.map_articles = f => {
@@ -376,8 +415,9 @@ class ArticleList extends React.Component {
         }
     }
     render () {
+        let tag = this.props.match.params.tag || null
         let items = this.map_articles(
-            article => ({ tag: 'article-item', ref: 'root', children: [
+            article => ({ tag: 'article-item', children: [
                 { tag: Link,
                   to: `/article/${article.id}`,
                   children: [
@@ -392,7 +432,7 @@ class ArticleList extends React.Component {
                     { tag: 'tags', "data-n": article.tags.length,
                       children: [
                           { tag: 'img', src: '/common/icons/tags.svg' },
-                          { tag: TagList, tags: article.tags }
+                          { tag: TagList, tags: article.tags, current: tag }
                       ] }
                 ] }
             ] })
