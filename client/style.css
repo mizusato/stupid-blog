@@ -19,16 +19,47 @@ article-item > a { display: block; color: hsl(0, 0%, 10%); }
 f { display: inline; }
 equation { display: block; }
 
+button {
+    background: linear-gradient(to bottom, hsl(0, 0%, 96%), hsl(0, 0%,92%));
+    border: 1px solid hsl(0, 0%, 70%);
+    border-radius: 3px;
+    color: hsl(0, 0%, 30%);
+    padding: 6px 8px;
+}
+
+button:hover:enabled {
+    background: linear-gradient(to bottom, hsl(0, 0%, 99%), hsl(0, 0%, 97%));
+    cursor: pointer;
+}
+
+button:active:enabled {
+    background: radial-gradient(hsl(0, 0%, 95%), hsl(0, 0%, 87%));
+}
+
+button:focus {
+    border: 1px solid hsl(0, 0%, 60%);
+    outline: 0;
+    outline: none;
+}
+
+button:disabled {
+    background: hsl(0, 0%, 90%);
+    color: hsl(0, 0%, 60%);
+}
+
+button::-moz-focus-inner {
+  border: 0;
+}
+
 blog, wrapper, header, title-bar, nav-bar, content, article-list, article-item, summary, page, article-detail { display: block; }
-tags, tag, publish-date { display: inline-block; } 
+tags, tag, publish-date { display: inline-block; }
 
 
 blog {
     width: 57vw;
-    min-height: 100vh;
     margin: 40px auto;
-    padding: 20px 40px;
-    background-color: hsla(0, 0%, 99%, 0.57);
+    padding: 22px 35px;
+    background-color: hsla(0, 0%, 99%, 0.6);
     box-shadow: 0px 0px 2px 4px hsla(0, 0%, 60%, 0.3);
 }
 
@@ -84,6 +115,15 @@ publish-date, tags { display: inline-flex; align-items: center; }
 
 tags[data-n="0"] { display: none; }
 tag { margin-right: 6px; }
+
+
+article-list-pager { display: flex; justify-content: center; }
+article-list-pager { padding: 20px 0px; }
+pager-widget { display: flex; justify-content: center; height: 35px; }
+pager-widget > * { display: block; box-sizing: border-box; }
+pager-widget > * { margin: 0px 5px; height: 100%; }
+pager-widget > input { width: 115px; text-align: center; }
+pager-widget > button { width: 45px; }
 
 
 article, page { padding: 24px 18px; }

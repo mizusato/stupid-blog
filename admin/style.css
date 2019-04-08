@@ -195,10 +195,11 @@ main-view {
 
 
 side-bar {
-    min-width: 21vw;
+    flex-basis: 21vw;
     background-color: hsl(0, 0%, 96%);
     border-right: 1px solid hsl(0, 0%, 70%);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 
@@ -290,6 +291,7 @@ bar-item-body {
     height: 100%;
     flex-grow: 1;
     font-size: 120%;
+    overflow-x: hidden;
 }
 
 

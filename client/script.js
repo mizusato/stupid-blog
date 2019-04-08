@@ -29,10 +29,10 @@ function render_formulas (root) {
     var inlines = root.querySelectorAll('f')
     var equations = root.querySelectorAll('equation')
     ;[...inlines, ...equations].forEach(element => {
-	    let is_inline = (element.tagName == 'EQUATION')
-	    let LaTeX = element.textContent
+        let is_inline = (element.tagName == 'EQUATION')
+        let LaTeX = element.textContent
         try {
-	        katex.render(LaTeX, element, { displayMode: is_inline })
+            katex.render(LaTeX, element, { displayMode: is_inline })
         } catch (err) {
             alert(`Error Rendering Formulas: ${err.message}`)
         }
@@ -65,6 +65,102 @@ async function get_data() {
         return null
     }
 }
+
+
+/**
+ *  Paginating Plugin
+ */
+class PagerPlugin {
+    constructor (total, initial, ipp, onchange) {
+        this.total = total
+        this.ipp = ipp
+        this.onchange = onchange
+        this.num_pages = Math.ceil(total / ipp)
+        this.current = initial
+    }
+    goto (page) {
+        if (typeof page == 'number') {
+            this.current = (page == -1)? this.num_pages-1: page
+        } else if (page == 'next') {
+            this.current += 1
+            this.current %= this.num_pages
+        } else if (page == 'previous') {
+            this.current -= 1
+            this.current = (this.current + this.num_pages) % this.num_pages
+        } else if (page == 'first') {
+            this.current = 0
+        } else if (page == 'last') {
+            this.current = this.num_pages - 1
+        } else {
+            throw(new Error('invalid argument page'))
+        }
+        this.onchange()
+    }
+    is_first () {
+        return (this.current == 0)
+    }
+    is_last () {
+        return (this.current == this.num_pages-1)
+    }
+    is_valid_page (page) {
+        return (0 <= page && page < this.num_pages)
+    }
+    range () {
+        let { current, ipp, total } = this
+        return (function* () {
+            let begin = current*ipp
+            let end = begin + ipp
+            for (let i=begin; (i < end && i < total); i++) {
+                yield i
+            }
+        })()
+    }
+}
+
+let PagerWidget = (props => {
+    let pager = props.pager
+    let get_page_from_index = (index_str => {
+        let index = Number.parseInt(index_str)
+        if (!Number.isNaN(index)) {
+            let page = index - 1
+            if (pager.is_valid_page(page)) {
+                return page
+            } else {
+                return null
+            }
+        } else {
+            return null
+        }
+    })
+    return JSX({
+        tag: 'pager-widget', children: [
+            { tag: 'button', children: ['⇤'],
+              disabled: pager.is_first(),
+              onClick: ev => pager.goto('first') },
+            { tag: 'button', children: ['←'],
+              disabled: pager.is_first(),
+              onClick: ev => pager.goto('previous') },
+            { tag: 'input',
+              placeholder: `${pager.current+1}/${pager.num_pages}`,
+              onKeyUp: ev => {
+                  if (ev.key != 'Enter') { return }
+                  let page = get_page_from_index(ev.target.value)
+                  if (page != null) {
+                      ev.target.value = ''
+                      ev.target.blur()
+                      pager.goto(page)
+                  }
+              }
+            },
+            { tag: 'button', children: ['→'],
+              disabled: pager.is_last(),
+                  onClick: ev => pager.goto('next') },
+            { tag: 'button', children: ['⇥'],
+              disabled: pager.is_last(),
+              onClick: ev => pager.goto('last') }
+          ]
+    })
+})
 
 
 /**
@@ -201,9 +297,29 @@ let Content = (props) => JSX({
     ]
 })
 
+let TagList = (props => JSX(
+    { tag: 'span', children: (
+        props.tags
+            .split(',')
+            .map(name => name.trim())
+            .map(name => ({
+                tag: 'tag', children: [{
+                    tag: Link, children: [name],
+                    to: `/tag/${name}`,
+                    style: { color: get_color(name) }
+                }]
+            }))
+    ) }
+))
+
+
 class ArticleList extends React.Component {
     constructor (props) {
         super(props)
+        this.init(props)
+    }
+    componentWillReceiveProps (props) {
+        this.init(props)
     }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
@@ -213,9 +329,9 @@ class ArticleList extends React.Component {
             document.title = site_title
         }
     }
-    render () {
-        let article_list = this.props.data.list.articles
-        let tag = this.props.match.params.tag        
+    init (props) {
+        let article_list = props.data.list.articles
+        let tag = props.match.params.tag
         if (tag) {
             let filter = (article => {
                 return article.tags
@@ -225,7 +341,22 @@ class ArticleList extends React.Component {
             })
             article_list = article_list.filter(filter)
         }
-        return JSX({ tag: 'article-list', children: article_list.map(
+        this.article_list = article_list
+        let total = article_list.length
+        let initial = 0
+        let ipp = 2
+        let onchange = () => this.forceUpdate()
+        this.pager = new PagerPlugin(total, initial, ipp, onchange)
+        this.map_articles = f => {
+            let list = []
+            for (let i of this.pager.range()) {
+                list.push(f(this.article_list[i]))
+            }
+            return list
+        }
+    }
+    render () {
+        let items = this.map_articles(
             article => ({ tag: 'article-item', children: [
                 { tag: Link,
                   to: `/article/${article.id}`,
@@ -241,24 +372,17 @@ class ArticleList extends React.Component {
                     { tag: 'tags', "data-n": article.tags.length,
                       children: [
                           { tag: 'img', src: '/common/icons/tags.svg' },
-                          { tag: 'span', children: (
-                              article.tags
-                                  .split(',')
-                                  .map(name => name.trim())
-                                  .map(name => ({
-                                      tag: 'tag', children: [{
-                                          tag: Link, children: [name],
-                                          to: `/tag/${name}`,
-                                          style: {
-                                              color: get_color(name)
-                                          }
-                                      }]
-                                  }))
-                          ) }
+                          { tag: TagList, tags: article.tags }
                       ] }
                 ] }
-            ] } )
-        )})
+            ] })
+        )
+        return JSX({ tag: 'article-list', children: [
+            { tag: 'article-list-items', children: items },
+            { tag: 'article-list-pager', children: [
+                { tag: PagerWidget, pager: this.pager }
+            ] }
+        ] })
     }
 }
 
