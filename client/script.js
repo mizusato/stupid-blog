@@ -360,9 +360,8 @@ class ArticleList extends React.Component {
     componentWillReceiveProps (props) {
         if (!this.page_switch_lock) {
             this.init(props)
-        } else {
-            this.page_switch_lock = false
         }
+        this.page_switch_lock = false
     }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
@@ -390,20 +389,17 @@ class ArticleList extends React.Component {
             article_list = article_list.filter(filter)
         }
         this.article_list = article_list
-        let query = decode_query(this.props.location.search)
+        let query = decode_query(props.location.search)
         let total = article_list.length
         let initial = (Number.parseInt(query.pn)-1) || 0
         let ipp = get_ipp()
         let onchange = () => {
-            console.log('onchage', this.pager.current+1)
             this.forceUpdate()
             setTimeout(scroll_to_content, 0)
-            console.log('updated')
-            let path = this.props.location.pathname
+            let path = props.location.pathname
             let query = encode_query({ pn: this.pager.current+1 })
             this.page_switch_lock = true
-            console.log('push', path+query)
-            this.props.history.push(path + query)
+            props.history.push(path + query)
         }
         this.pager = new PagerPlugin(total, initial, ipp, onchange)
         this.map_articles = f => {
