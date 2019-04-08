@@ -25,6 +25,7 @@ let MSG = {
     site_name: '網站名稱',
     site_desc: '網站描述',
     site_title: '網站標題',
+    items_per_page: '每頁文章數',
     save: '儲存',
     save_failed: '更新後台資料失敗',
     edit: {

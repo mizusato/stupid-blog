@@ -221,6 +221,8 @@ class MetaEditor extends FormComponent {
                   disabled: !can_input, dirty },
                 { tag: TextInput, name: 'description', label: MSG.site_desc,
                   textarea: true, disabled: !can_input, dirty },
+                { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
+                  disabled: !can_input, dirty },
                 { tag: 'button', children: [MSG.save],
                   disabled: !can_save, onClick: save }
             ] } ]
@@ -391,6 +393,21 @@ class MainView extends React.Component {
                 })
             }
         }
+    }
+    componentDidMount () {
+        window.onbeforeunload = (ev => {
+            for (let category of Object.keys(this.state.edit)) {
+                for (let item of this.state.edit[category]) {
+                    if (item.dirty) {
+                        return (
+                            'Some content has not been saved. '
+                            + 'Really exit?'
+                        )
+                    }
+                }
+            }
+        })
+        return null
     }
     get (category, id) {
         let all = this.state.edit[category]

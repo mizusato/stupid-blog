@@ -68,6 +68,14 @@ async function get_data() {
 
 
 /**
+ *  Scroll View to the Content Element
+ */
+function scroll_to_content () {
+    document.querySelector('content').scrollIntoView()
+}
+
+
+/**
  *  Paginating Plugin
  */
 class PagerPlugin {
@@ -312,7 +320,6 @@ let TagList = (props => JSX(
     ) }
 ))
 
-
 class ArticleList extends React.Component {
     constructor (props) {
         super(props)
@@ -328,8 +335,14 @@ class ArticleList extends React.Component {
         } else {
             document.title = site_title
         }
+        scroll_to_content()
     }
     init (props) {
+        let get_ipp = () => {
+            let ipp_str = props.data.settings.meta.ipp
+            let ipp = Number.parseInt(ipp_str)
+            return Number.isNaN(ipp)? 30: ipp
+        }
         let article_list = props.data.list.articles
         let tag = props.match.params.tag
         if (tag) {
@@ -344,8 +357,11 @@ class ArticleList extends React.Component {
         this.article_list = article_list
         let total = article_list.length
         let initial = 0
-        let ipp = 2
-        let onchange = () => this.forceUpdate()
+        let ipp = get_ipp()
+        let onchange = () => {
+            this.forceUpdate()
+            this.refs.root.scrollIntoView()
+        }
         this.pager = new PagerPlugin(total, initial, ipp, onchange)
         this.map_articles = f => {
             let list = []
@@ -357,7 +373,7 @@ class ArticleList extends React.Component {
     }
     render () {
         let items = this.map_articles(
-            article => ({ tag: 'article-item', children: [
+            article => ({ tag: 'article-item', ref: 'root', children: [
                 { tag: Link,
                   to: `/article/${article.id}`,
                   children: [
