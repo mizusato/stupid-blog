@@ -102,8 +102,9 @@ let ContentForm = (props => JSX({
         { tag: TextInput, name: 'content', label: MSG.edit.content,
           disabled: !props.can_input, dirty: props.dirty,
           textarea: true, use_code_editor: true },
-        { tag: 'a', href: 'javascript:void(0)', children: [MSG.preview],
-          onClick: ev => this.props.preview(), className: 'preview' }
+        { tag: 'a', href: `/preview/${props.preview.type}`, target: '_blank',
+          className: 'preview', children: [MSG.preview],
+          onClick: ev => props.preview.prepare()  }
     ]
 }))
 
@@ -164,13 +165,17 @@ class PageArticleEditor extends FormComponent {
     switch_to (tab) {
         this.setState({ tab })
     }
-    preview () {
-        // TODO
+    prepare_preview () {
+        localStorage.preview_title = this.props.item.data.title || ''
+        localStorage.preview_content = this.props.item.data.content || ''
     }
     render () {
         let { dirty, save, can_input, can_save } = this.form_info()
         let switch_to = this.switch_to.bind(this)
-        let preview = this.preview.bind(this)
+        let preview = {
+            type: this.type,
+            prepare: this.prepare_preview.bind(this)
+        }
         let type = this.type
         let InfoForm = ({
             page: PageInfoForm,

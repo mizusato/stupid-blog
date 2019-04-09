@@ -301,35 +301,50 @@ let NavBar = (props) => JSX({
 /**  Content  **/
 
 
+let RouteRender = element => (route_props => JSX(
+    Object.assign({}, route_props, element)
+))
+
+
 let Content = (props) => JSX({
     tag: 'content',
     children: [
         { tag: Route, path: '/', exact: true,
-          render: (route) => JSX({
-              ...route,
+          render: RouteRender({
+              tag: ArticleList,
+              data: props.data
+          })
+        },
+        { tag: Route, path: '/tag/:tag',
+          render: RouteRender({
               tag: ArticleList,
               data: props.data
           })
         },
         { tag: Route, path: '/page/:id',
-          render: (route) => JSX({
-              ...route,
+          render: RouteRender({
               tag: Page,
               data: props.data
           })
         },
         { tag: Route, path: '/article/:id',
-          render: (route) => JSX({
-              ...route,
+          render: RouteRender({
               tag: Article,
               data: props.data
           })
         },
-        { tag: Route, path: '/tag/:tag',
-          render: (route) => JSX({
-              ...route,
-              tag: ArticleList,
-              data: props.data
+        { tag: Route, path: '/preview/page',
+          render: RouteRender({
+              tag: Page,
+              data: props.data,
+              is_preview: true
+          })
+        },
+        { tag: Route, path: '/preview/article',
+          render: RouteRender({
+              tag: Article,
+              data: props.data,
+              is_preview: true
           })
         }
     ]
@@ -445,8 +460,15 @@ class ArticleList extends React.Component {
 class Page extends React.Component {
     constructor (props) {
         super(props)
-        let id = this.props.match.params.id
-        this.page = this.props.data.pages[id]
+        if (!this.props.is_preview) {
+            let id = this.props.match.params.id
+            this.page = this.props.data.pages[id]
+        } else {
+            this.page = {
+                title: localStorage.preview_title,
+                content: localStorage.preview_content,
+            }
+        }
     }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title
@@ -466,8 +488,15 @@ class Page extends React.Component {
 class Article extends React.Component {
     constructor (props) {
         super(props)
-        let id = this.props.match.params.id
-        this.article = this.props.data.articles[id]
+        if (!this.props.is_preview) {
+            let id = this.props.match.params.id
+            this.article = this.props.data.articles[id]
+        } else {
+            this.article = {
+                title: localStorage.preview_title,
+                content: localStorage.preview_content
+            }
+        }
     }
     componentDidMount () {
         let site_title = this.props.data.settings.meta.title

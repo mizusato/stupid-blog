@@ -276,6 +276,11 @@ bar-item.indent[data-selected=true] {
 }
 
 
+bar-item.indent[data-public=false] span {
+    color: hsl(0, 0%, 53%);
+}
+
+
 bar-item img {
     height: 100%;
     width: auto;
