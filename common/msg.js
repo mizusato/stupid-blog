@@ -53,5 +53,9 @@ let MSG = {
     confirm_remove: {
         articles: '確定要刪除這篇文章嗎？',
         pages: '確定要刪除這個頁面嗎？'
+    },
+    disqus: {
+        enabled: '使用 Disqus',
+        site_id: 'Disqus Site Identifier'
     }
 }

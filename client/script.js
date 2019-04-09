@@ -255,7 +255,9 @@ class Blog extends React.Component {
                         children: [
                             { tag: 'wrapper', children: [
                                 { tag: Header, data: this.state.data },
-                                { tag: Content, data: this.state.data }
+                                { tag: Content, data: this.state.data },
+                                { tag: Comments, data: this.state.data },
+                                { tag: Footer, data: this.state.data }
                             ] }
                         ]
                     }
@@ -265,6 +267,65 @@ class Blog extends React.Component {
         return content[this.state.status]()
     }
 }
+
+
+let Comments = (props => JSX({
+    tag: Route,
+    path: '/article/:id',
+    render: RouteRender({
+        tag: CommentList,
+        data: props.data
+    })
+}))
+
+
+class CommentList extends React.Component {
+    init (props) {
+        let meta = props.data.settings.meta
+        if (!meta.disqus_enabled) { return }
+        let id = props.match.params.id
+        if (!props.data.articles[id]) { return }
+        let site_id = encodeURIComponent(meta.disqus_site_id)
+        let port = location.port? ':' + location.port: ''
+        let url = location.protocol + '//' + location.hostname + port
+        let thread_id = id
+        let thread_title = props.data.articles[id].title
+        let disqus_config = function () {
+            this.page.url = `${url}/article/${thread_id}`
+            this.page.identifier = thread_id
+            this.page.title = thread_title
+        }
+        let loaded = document.head.querySelector('#disqus_script')
+        if (loaded) {
+            DISQUS.reset({ reload: true, config: disqus_config })
+        } else {
+            window.disqus_config = disqus_config
+            let script_tag = document.createElement('script')
+            script_tag.id = 'disqus_script'
+            script_tag.src = `https://${site_id}.disqus.com/embed.js`
+            script_tag.dataset.timestamp = Number(new Date())
+            document.head.appendChild(script_tag)
+        }
+    }
+    componentDidMount () {
+        this.init(this.props)
+    }
+    componentWillReceiveProps (props) {
+        this.init(props)
+    }
+    render () {
+        return JSX({
+            tag: 'comments', children: [{
+                tag: 'div', id: 'disqus_thread'
+            }]
+        })
+    }
+}
+
+
+let Footer = (props => JSX({
+    tag: 'footer'
+}))
 
 
 /**  Header  **/

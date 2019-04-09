@@ -228,6 +228,12 @@ class MetaEditor extends FormComponent {
                   textarea: true, disabled: !can_input, dirty },
                 { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
                   disabled: !can_input, dirty },
+                { tag: OptionInput, name: 'disqus_enabled',
+                  label: MSG.disqus.enabled,
+                  disabled: !can_input, dirty },
+                { tag: TextInput, name: 'disqus_site_id',
+                  label: MSG.disqus.site_id,
+                  disabled: !can_input, dirty },
                 { tag: 'button', children: [MSG.save],
                   disabled: !can_save, onClick: save }
             ] } ]
