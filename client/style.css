@@ -119,7 +119,7 @@ tag { margin-right: 6px; }
 
 
 article-list-pager { display: flex; justify-content: center; }
-article-list-pager { padding: 20px 0px; }
+article-list-pager { padding: 20px 0px 0px 0px; }
 pager-widget { display: flex; justify-content: center; height: 35px; }
 pager-widget > * { display: block; box-sizing: border-box; }
 pager-widget > * { margin: 0px 5px; height: 100%; }

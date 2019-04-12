@@ -324,7 +324,8 @@ class CommentDisplay extends React.Component {
 
 
 let Footer = (props => JSX({
-    tag: 'footer'
+    tag: 'footer',
+    dangerouslySetInnerHTML: { __html: props.data.settings.meta.footer }
 }))
 
 

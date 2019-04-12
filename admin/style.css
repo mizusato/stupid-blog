@@ -58,11 +58,6 @@ button::-moz-focus-inner {
 }
 
 
-meta-form > button {
-    margin-top: 10px;
-}
-
-
 text-field {
     display: block;
 }

@@ -213,27 +213,67 @@ class ArticleEditor extends PageArticleEditor {
 }
 
 
+let SiteInfoFrom = (props) => (JSX({
+    tag: 'site-info-form', class: 'form-body',
+    style: { display: (props.tab == 'site_info')? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'title', label: MSG.site_title,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'name', label: MSG.site_name,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'description', label: MSG.site_desc,
+          textarea: true, disabled: !props.can_input, dirty: props.dirty },
+    ]
+}))
+
+
+let OptionsForm = (props => JSX({
+    tag: 'option-form', class: 'form-body',
+    style: { display: (props.tab == 'options')? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: OptionInput, name: 'disqus_enabled',
+          label: MSG.disqus.enabled,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'disqus_site_id',
+          label: MSG.disqus.site_id,
+          disabled: !props.can_input, dirty: props.dirty },
+    ]
+}))
+
+
+let FooterForm = (props => JSX({
+    tag: 'footer-form', class: 'form-body',
+    style: { display: (props.tab == 'footer')? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'footer', label: MSG.edit.footer,
+          disabled: !props.can_input, dirty: props.dirty,
+          textarea: true, use_code_editor: true },
+    ]
+}))
+
+
 class MetaEditor extends FormComponent {
+    constructor (props, type) {
+        super(props)
+        this.state = { tab: 'site_info' }
+        this.tabs = ['site_info', 'options', 'footer']
+    }
+    switch_to (tab) {
+        this.setState({ tab })
+    }
     render () {
         let { dirty, save, can_input, can_save } = this.form_info()
         return JSX({
             tag: 'meta-editor', class: 'editor',
             children: [ { tag: 'meta-form', ref: 'form', children: [
                 { tag: 'h1', children: [MSG.meta] },
-                { tag: TextInput, name: 'title', label: MSG.site_title,
-                  disabled: !can_input, dirty },
-                { tag: TextInput, name: 'name', label: MSG.site_name,
-                  disabled: !can_input, dirty },
-                { tag: TextInput, name: 'description', label: MSG.site_desc,
-                  textarea: true, disabled: !can_input, dirty },
-                { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
-                  disabled: !can_input, dirty },
-                { tag: OptionInput, name: 'disqus_enabled',
-                  label: MSG.disqus.enabled,
-                  disabled: !can_input, dirty },
-                { tag: TextInput, name: 'disqus_site_id',
-                  label: MSG.disqus.site_id,
-                  disabled: !can_input, dirty },
+                { tag: EditorTabBar, switch_to: this.switch_to.bind(this),
+                  tabs: this.tabs, tab: this.state.tab },
+                { tag: SiteInfoFrom, can_input, dirty, tab: this.state.tab },
+                { tag: OptionsForm, can_input, dirty, tab: this.state.tab },
+                { tag: FooterForm, can_input, dirty, tab: this.state.tab },
                 { tag: 'button', children: [MSG.save],
                   disabled: !can_save, onClick: save }
             ] } ]

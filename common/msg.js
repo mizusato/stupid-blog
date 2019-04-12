@@ -41,9 +41,13 @@ let MSG = {
         visible: '可見',
         summary: '摘要',
         content: '內容',
+        footer: '頁腳內容',
         tabs: {
             info: '修改資訊',
-            content: '編輯內容'
+            content: '編輯內容',
+            site_info: '網站資訊',
+            options: '選項',
+            footer: '頁腳'
         }
     },
     preview: '預覧',
