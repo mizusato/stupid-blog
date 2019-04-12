@@ -273,13 +273,13 @@ let Comments = (props => JSX({
     tag: Route,
     path: '/article/:id',
     render: RouteRender({
-        tag: CommentList,
+        tag: CommentDisplay,
         data: props.data
     })
 }))
 
 
-class CommentList extends React.Component {
+class CommentDisplay extends React.Component {
     init (props) {
         let meta = props.data.settings.meta
         if (!meta.disqus_enabled) { return }
@@ -574,7 +574,9 @@ class Article extends React.Component {
                 { tag: 'h1', className: 'title',
                   children: [this.article.title] },
                 { tag: 'div',
-                  dangerouslySetInnerHTML: { __html: this.article.content } }
+                  dangerouslySetInnerHTML: { __html: this.article.content } },
+                { tag: 'div', className: 'date-indicator',
+                  children:[`${MSG.publish_date}: ${this.article.date}`] }
             ]
         })
     }

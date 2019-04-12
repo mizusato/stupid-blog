@@ -8,6 +8,7 @@ let MSG = {
     retry: '重新載入',
     go_back: '返回',
     homepage: '首頁',
+    publish_date: '文章發表時間',
     admin_title: '部落格管理後台',
     login_title: '請先登入',
     login: '登入',

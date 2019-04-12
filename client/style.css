@@ -127,8 +127,9 @@ pager-widget > input { width: 115px; text-align: center; }
 pager-widget > button { width: 45px; }
 
 
-article, page { padding: 24px 18px; }
+article, page { padding: 24px 18px; position: relative; }
 article > h1 { font-size: 28px; }
+article > div.date-indicator { margin-top: 24px; color: hsl(0, 0%, 40%); }
 
 pre.code {
     font-size: 22px;
