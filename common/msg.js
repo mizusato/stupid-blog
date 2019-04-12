@@ -9,6 +9,8 @@ let MSG = {
     go_back: '返回',
     homepage: '首頁',
     publish_date: '文章發表時間',
+    article_404: '文章不存在',
+    page_404: '頁面不存在',
     admin_title: '部落格管理後台',
     login_title: '請先登入',
     login: '登入',

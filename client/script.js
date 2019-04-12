@@ -523,7 +523,14 @@ class Page extends React.Component {
         super(props)
         if (!this.props.is_preview) {
             let id = this.props.match.params.id
-            this.page = this.props.data.pages[id]
+            if (this.props.data.pages[id]) {
+                this.page = this.props.data.pages[id]
+            } else {
+                this.page = {
+                    title: MSG.page_404,
+                    content: `<h1>${MSG.page_404}</h1>`
+                }
+            }
         } else {
             this.page = {
                 title: localStorage.preview_title,
@@ -551,7 +558,15 @@ class Article extends React.Component {
         super(props)
         if (!this.props.is_preview) {
             let id = this.props.match.params.id
-            this.article = this.props.data.articles[id]
+            if (this.props.data.articles[id]) {
+                this.article = this.props.data.articles[id]
+            } else {
+                this.article = {
+                    title: MSG.article_404,
+                    date: '---',
+                    content: ''
+                }
+            }
         } else {
             this.article = {
                 title: localStorage.preview_title,
