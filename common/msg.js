@@ -29,6 +29,7 @@ let MSG = {
     site_desc: '網站描述',
     site_title: '網站標題',
     items_per_page: '每頁文章數',
+    license: '授權條款',
     save: '儲存',
     save_failed: '更新後台資料失敗',
     edit: {

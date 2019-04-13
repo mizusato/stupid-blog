@@ -129,10 +129,13 @@ pager-widget > button { width: 45px; }
 
 article, page { padding: 24px 18px; position: relative; }
 article > h1 { font-size: 28px; }
-article > div.date-indicator { margin-top: 24px; color: hsl(0, 0%, 40%); }
+article > div.indicator { color: hsl(0, 0%, 40%); }
+article > div.indicator.date { margin-top: 24px; }
 
 pre.code {
     font-size: 22px;
     border-radius: 6px;
     background-color: hsla(0, 0%, 99%, 0.45) !important;
 }
+
+#disqus_thread > iframe + div { margin-bottom: 32px; }

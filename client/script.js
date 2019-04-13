@@ -324,8 +324,11 @@ class CommentDisplay extends React.Component {
 
 
 let Footer = (props => JSX({
-    tag: 'footer',
-    dangerouslySetInnerHTML: { __html: props.data.settings.meta.footer }
+    tag: Route, path: '/', exact: true,
+    render: RouteRender({
+        tag: 'footer',
+        dangerouslySetInnerHTML: { __html: props.data.settings.meta.footer }
+    })
 }))
 
 
@@ -582,7 +585,7 @@ class Article extends React.Component {
         render_code_blocks(this.refs.root)
     }
     render () {
-        let props = this.props
+        let license = this.props.data.settings.meta.license
         return JSX({
             tag: 'article',
             ref: 'root',
@@ -591,8 +594,10 @@ class Article extends React.Component {
                   children: [this.article.title] },
                 { tag: 'div',
                   dangerouslySetInnerHTML: { __html: this.article.content } },
-                { tag: 'div', className: 'date-indicator',
-                  children:[`${MSG.publish_date}: ${this.article.date}`] }
+                { tag: 'div', className: 'indicator date',
+                  children: [`${MSG.publish_date}: ${this.article.date}`] },
+                { tag: 'div', className: 'indicator license',
+                  children: license? [`${MSG.license}: ${license}`]: [] }
             ]
         })
     }

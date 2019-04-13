@@ -233,12 +233,12 @@ let OptionsForm = (props => JSX({
     children: [
         { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
           disabled: !props.can_input, dirty: props.dirty },
-        { tag: OptionInput, name: 'disqus_enabled',
-          label: MSG.disqus.enabled,
+        { tag: OptionInput, name: 'disqus_enabled', label: MSG.disqus.enabled,
           disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'disqus_site_id',
-          label: MSG.disqus.site_id,
+        { tag: TextInput, name: 'disqus_site_id', label: MSG.disqus.site_id,
           disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'license', label: MSG.license,
+          disabled: !props.can_input, dirty: props.dirty }
     ]
 }))
 
