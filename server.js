@@ -33,13 +33,9 @@ let jump2spa = (req, res, next) => {
 }
 
 server.use('/page/:id', seo.page, jump2spa)
-
 server.use('/article/:id', seo.article, jump2spa)
-
 server.use('/tag/:name', jump2spa)
-
 server.use('/preview/:category', jump2spa)
-
 server.use('/', seo.index)
 
 server.use('/', tools.serve_static('client'))

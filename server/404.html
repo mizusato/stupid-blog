@@ -1,8 +1,26 @@
 <!DOCTYPE>
 <html>
   <head>
+      <script type="text/javascript">
+        window.addEventListener('load', function(ev) {
+            var H = 0
+            ;(function () {
+                setInterval(function () {
+                    H = (H+1) % 360
+                    text_element.style.color = 'hsl('+H+', 90%, 45%)'
+                }, 40)
+            })()
+        })
+      </script>
+      <style>
+        body { margin: 0; padding: 0; width: 100vw; height: 100vh; }
+        body { display: flex; justify-content: center; align-items: center; }
+        body { background-color: hsl(233, 70%, 95%); }
+        #text_element { font-size: 404%; }
+      </style>
+      <title>404 Not Found</title>
   </head>
   <body>
-    <h1>404 Not Found</h1>
+    <h1 id="text_element">404 Not Found</h1>
   </body>
 </html>
