@@ -18,9 +18,7 @@ function time () {
 function gen_etag () {
     let new_etag = ''
     for (let i=0; i<32; i++) {
-        for (let j=0; j<26; j++) {
-            new_etag += String.fromCharCode(65+Math.floor(26*Math.random()))
-        }
+        new_etag += String.fromCharCode(65+Math.floor(26*Math.random()))
     }
     etag = new_etag
 }

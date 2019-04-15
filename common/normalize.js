@@ -12,12 +12,14 @@ function to_array (hash, show_hidden) {
 
 
 function date_dec (y, x) {
-    return x.date > y.date
+    if (x.date == y.date) { return 0 }
+    return (x.date > y.date)? 1: -1
 }
 
 
 function id_inc (y, x) {
-    return x.id < y.id
+    if (x.id == y.id) { return 0 }
+    return (x.id < y.id)? 1: -1
 }
 
 

@@ -301,16 +301,18 @@ class CommentDisplay extends React.Component {
             this.page.identifier = thread_id
             this.page.title = thread_title
         }
-        let loaded = document.head.querySelector('#disqus_script')
-        if (loaded) {
-            DISQUS.reset({ reload: true, config: disqus_config })
+        if (window.DISQUS) {
+            window.DISQUS.reset({ reload: true, config: disqus_config })
         } else {
             window.disqus_config = disqus_config
-            let script_tag = document.createElement('script')
-            script_tag.id = 'disqus_script'
-            script_tag.src = `https://${site_id}.disqus.com/embed.js`
-            script_tag.dataset.timestamp = Number(new Date())
-            document.head.appendChild(script_tag)
+            let loaded = document.head.querySelector('#disqus_script')
+            if (!loaded) {
+                let script_tag = document.createElement('script')
+                script_tag.id = 'disqus_script'
+                script_tag.src = `https://${site_id}.disqus.com/embed.js`
+                script_tag.dataset.timestamp = Number(new Date())
+                document.head.appendChild(script_tag)
+            }
         }
     }
     componentDidMount () {
