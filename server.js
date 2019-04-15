@@ -4,9 +4,9 @@
 let express = require('express')
 let argparse = require('argparse')
 
-let tools = require('./tools')
-let auth = require('./auth')
-let api = require('./api')
+let tools = require('./server/tools')
+let auth = require('./server/auth')
+let api = require('./server/api')
 
 
 let server = express()
@@ -55,7 +55,7 @@ server.use('/', tools.serve_static('client'))
 
 server.use((err, req, res, next) => {
     if (err.statusCode == 404) {
-        res.status(404).sendFile('404.html', { root: __dirname })
+        res.status(404).sendFile('404.html', { root: `${__dirname}/server` })
     } else {
         let code = err.statusCode || 500
         res.status(code).send(

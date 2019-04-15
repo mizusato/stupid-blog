@@ -1,4 +1,4 @@
-let DATA_FILE = 'data.json'
+let DATA_FILE = `${__dirname}/../data/data.json`
 let SAVE_DELAY = 1500
 
 

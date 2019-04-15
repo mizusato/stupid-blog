@@ -12,7 +12,7 @@ function logger (req, res, next) {
 
 function serve_static (dir, options) {
     options = options || {}
-    let path = `${__dirname}/${dir}`
+    let path = `${__dirname}/../${dir}`
     let base = express.static(path, {
         fallthrough: !!options.index,
         dotfiles: (options.dot? 'allow': 'ignore')
