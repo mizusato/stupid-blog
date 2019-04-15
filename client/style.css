@@ -127,13 +127,13 @@ article > div.indicator { color: hsl(0, 0%, 40%); }
 article > div.indicator.date { margin-top: 24px; }
 
 pre.code {
-    font-size: 22px;
+    font-size: 20px;
     border-radius: 6px;
     overflow-x: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;
     background-color: hsla(0, 0%, 99%, 0.45) !important;
-    box-shadow: hsla(0, 0%, 50%, 0.6) 0px 0px 4px inset;
+    box-shadow: hsla(0, 0%, 40%, 0.5) 0px 0px 5px inset;
 }
 
 #disqus_thread > iframe + div { margin-bottom: 32px; }
