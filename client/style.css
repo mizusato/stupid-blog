@@ -129,8 +129,11 @@ article > div.indicator.date { margin-top: 24px; }
 pre.code {
     font-size: 22px;
     border-radius: 6px;
-    overflow-x: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     background-color: hsla(0, 0%, 99%, 0.45) !important;
+    box-shadow: hsla(0, 0%, 50%, 0.6) 0px 0px 4px inset;
 }
 
 #disqus_thread > iframe + div { margin-bottom: 32px; }
@@ -212,5 +215,6 @@ pre.code {
     }
     pre.code {
         font-size: 16px;
+        box-shadow: hsla(0, 0%, 50%, 0.35) 0px 0px 3px inset;
     }
 }
