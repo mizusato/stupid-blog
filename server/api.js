@@ -50,6 +50,11 @@ function save_to_memory () {
 }
 
 
+function get_raw_data () {
+    return data
+}
+
+
 function get_data (req, res) {
     if (req.get('If-None-Match') === etag) {
         res.status(304).end()
@@ -143,4 +148,4 @@ function update (req, res) {
 gen_etag()
 
 
-module.exports = { get_data, remove, update, SAVE_DELAY }
+module.exports = { get_raw_data, get_data, remove, update, SAVE_DELAY }

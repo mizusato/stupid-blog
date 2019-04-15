@@ -7,6 +7,7 @@ let argparse = require('argparse')
 let tools = require('./server/tools')
 let auth = require('./server/auth')
 let api = require('./server/api')
+let seo = require('./server/seo')
 
 
 let server = express()
@@ -25,6 +26,11 @@ server.get('/data', api.get_data)
 server.use('/common', tools.serve_static('common'))
 server.use('/files', tools.serve_static('files', { index: true, dot: true }))
 
+
+let jump2spa = (req, res, next) => {
+    req.url = '/'
+    server.handle(req, res, next)
+}
 
 server.use('/page/:id', (req, res, next) => {
     req.url = '/'
@@ -46,9 +52,7 @@ server.use('/preview/:category', (req, res, next) => {
     server.handle(req, res, next)
 })
 
-server.use('/', (req, res, next) => {
-    next()
-})
+server.use('/', seo.index)
 
 server.use('/', tools.serve_static('client'))
 
@@ -59,7 +63,10 @@ server.use((err, req, res, next) => {
     } else {
         let code = err.statusCode || 500
         res.status(code).send(
-            `<!DOCTYPE html><h1>HTTP ${code}</h1><pre>${err.message}</pre>`
+            `<!DOCTYPE html>
+            <h1>HTTP ${code}</h1>
+            <pre>${err.message}</pre>
+            <pre>${err.stack}</pre>`
         )
     }
 })

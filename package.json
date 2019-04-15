@@ -19,6 +19,7 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "readline-sync": "^1.4.9",
-    "serve-index": "^1.9.1"
+    "serve-index": "^1.9.1",
+    "spider-detector": "^1.0.19"
   }
 }
