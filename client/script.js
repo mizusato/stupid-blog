@@ -62,7 +62,10 @@ function render_formulas (root) {
         let is_inline = (element.tagName == 'EQUATION')
         let LaTeX = element.textContent
         try {
-            katex.render(LaTeX, element, { displayMode: is_inline })
+            if (element.dataset.render_finished != 'true') {
+                katex.render(LaTeX, element, { displayMode: is_inline })
+                element.dataset.render_finished = 'true'
+            }
         } catch (err) {
             alert(`Error Rendering Formulas: ${err.message}`)
         }
@@ -75,7 +78,10 @@ function render_formulas (root) {
  */
 function render_code_blocks (root) {
     root.querySelectorAll('pre.code').forEach(element => {
-        hljs.highlightBlock(element)
+        if (element.dataset.render_finished != 'true') {
+            hljs.highlightBlock(element)
+            element.dataset.render_finished = 'true'
+        }
     })
 }
 
@@ -443,14 +449,6 @@ class ArticleList extends React.Component {
         }
         this.page_switch_lock = false
     }
-    componentDidMount () {
-        let site_title = this.props.data.settings.meta.title
-        if (this.tag) {
-            document.title = `${this.tag} - ${site_title}`
-        } else {
-            document.title = site_title
-        }
-    }
     init (props) {
         let get_ipp = () => {
             let ipp_str = props.data.settings.meta.ipp
@@ -489,6 +487,12 @@ class ArticleList extends React.Component {
             }
             return list
         }
+        let site_title = props.data.settings.meta.title
+        if (tag) {
+            document.title = `${this.tag} - ${site_title}`
+        } else {
+            document.title = site_title
+        }
     }
     render () {
         let tag = this.props.match.params.tag || null
@@ -525,10 +529,16 @@ class ArticleList extends React.Component {
 class Page extends React.Component {
     constructor (props) {
         super(props)
-        if (!this.props.is_preview) {
-            let id = this.props.match.params.id
-            if (this.props.data.pages[id]) {
-                this.page = this.props.data.pages[id]
+        this.init(props)
+    }
+    componentWillReceiveProps (props) {
+        this.init(props)
+    }
+    init (props) {
+        if (!props.is_preview) {
+            let id = props.match.params.id
+            if (props.data.pages[id]) {
+                this.page = props.data.pages[id]
             } else {
                 this.page = {
                     title: MSG.page_404,
@@ -541,10 +551,16 @@ class Page extends React.Component {
                 content: localStorage.preview_content,
             }
         }
+        let site_title = props.data.settings.meta.title
+        document.title = `${this.page.title} - ${site_title}`
     }
     componentDidMount () {
-        let site_title = this.props.data.settings.meta.title
-        document.title = `${this.page.title} - ${site_title}`
+        this.after_render()
+    }
+    componentDidUpdate () {
+        this.after_render()
+    }
+    after_render () {
         render_formulas(this.refs.root)
         render_code_blocks(this.refs.root)
     }
@@ -560,10 +576,17 @@ class Page extends React.Component {
 class Article extends React.Component {
     constructor (props) {
         super(props)
-        if (!this.props.is_preview) {
-            let id = this.props.match.params.id
-            if (this.props.data.articles[id]) {
-                this.article = this.props.data.articles[id]
+        this.init(props)
+    }
+    componentWillReceiveProps (props) {
+        this.init(props)
+    }
+    init (props) {
+        this.license = this.props.data.settings.meta.license
+        if (!props.is_preview) {
+            let id = props.match.params.id
+            if (props.data.articles[id]) {
+                this.article = props.data.articles[id]
             } else {
                 this.article = {
                     title: MSG.article_404,
@@ -577,15 +600,20 @@ class Article extends React.Component {
                 content: localStorage.preview_content
             }
         }
+        let site_title = props.data.settings.meta.title
+        document.title = `${this.article.title} - ${site_title}`
     }
     componentDidMount () {
-        let site_title = this.props.data.settings.meta.title
-        document.title = `${this.article.title} - ${site_title}`
+        this.after_render()
+    }
+    componentDidUpdate () {
+        this.after_render()
+    }
+    after_render () {
         render_formulas(this.refs.root)
         render_code_blocks(this.refs.root)
     }
     render () {
-        let license = this.props.data.settings.meta.license
         return JSX({
             tag: 'article',
             ref: 'root',
@@ -597,7 +625,9 @@ class Article extends React.Component {
                 { tag: 'div', className: 'indicator date',
                   children: [`${MSG.publish_date}: ${this.article.date}`] },
                 { tag: 'div', className: 'indicator license',
-                  children: license? [`${MSG.license}: ${license}`]: [] }
+                  children: (
+                      this.license? [`${MSG.license}: ${this.license}`]: []
+                  ) }
             ]
         })
     }
