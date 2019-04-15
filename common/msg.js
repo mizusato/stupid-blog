@@ -55,8 +55,8 @@ let MSG = {
     blank: {
         article: '空白文章',
         page: '空白頁面',
-        default_summary: 'lorem ipsum',
-        default_content: 'lorem ipsum dolor sit amet...'
+        default_summary: '<p>lorem ipsum</p>',
+        default_content: '<p>lorem ipsum dolor sit amet...</p>'
     },
     confirm_remove: {
         articles: '確定要刪除這篇文章嗎？',

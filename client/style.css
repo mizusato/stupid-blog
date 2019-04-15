@@ -2,7 +2,7 @@ body {
     margin: 0px auto;
     font-family: sans-serif;
     background: linear-gradient(
-        to bottom, hsl(189,100%,92%) 0%,hsl(192,90%,80%) 100%
+        to bottom, hsl(189, 100%, 92%) 0%,hsl(192, 90%, 80%) 100%
     );
     background-repeat: no-repeat;
     width: 100vw;
@@ -17,7 +17,7 @@ a { color: hsl(233, 90%, 55%); text-decoration: none; outline: none; }
 article-item > a { display: block; color: hsl(0, 0%, 10%); }
 
 f { display: inline; }
-equation { display: block; }
+equation { display: block; overflow-x: auto; }
 
 button {
     background: linear-gradient(to bottom, hsl(0, 0%, 96%), hsl(0, 0%,92%));
@@ -65,15 +65,6 @@ blog {
 }
 
 
-@media only screen and (max-width: 1224px) {
-    blog {
-        width: 100vw;
-        box-sizing: border-box;
-        margin: 0px auto;
-    }
-}
-
-
 blog.loading > wrapper, blog.failed > wrapper {
     display: flex;
     height: 85vh;
@@ -88,6 +79,8 @@ nav-bar, article-item:first-child, article, page {
     border-top: 1px solid hsl(233, 80%, 87%);
 }
 article-item { border-bottom: 1px solid hsl(233, 80%, 87%); }
+article-item { overflow-x: hidden; }
+summary { word-wrap: break-word; }
 
 
 title-bar { padding: 5px 0px 27px 0px; }
@@ -103,7 +96,7 @@ content { margin: 0px; }
 
 
 article-item { padding: 24px 28px; }
-article-item > a > summary { padding: 8px 0px 18px 15px; }
+article-item > a > summary { padding: 12px 0px 18px 15px; }
 
 article-item > a > h2 { font-size: 28px; }
 article-item > a > summary { font-size: 20px; }
@@ -136,7 +129,88 @@ article > div.indicator.date { margin-top: 24px; }
 pre.code {
     font-size: 22px;
     border-radius: 6px;
+    overflow-x: auto;
     background-color: hsla(0, 0%, 99%, 0.45) !important;
 }
 
 #disqus_thread > iframe + div { margin-bottom: 32px; }
+
+
+@media only screen and (max-width: 1224px) {
+    body {
+        background: linear-gradient(
+            to bottom, hsl(189, 100%, 98%) 0%,hsl(192, 90%, 92%) 100%
+        );
+    }
+    blog {
+        width: 100vw;
+        min-height: 100vh;
+        box-sizing: border-box;
+        margin: 0px auto;
+        padding: 18px 4vw;
+    }
+    blog.loading > wrapper, blog.failed > wrapper {
+        height: 100vh;
+    }
+    title-bar > h1 {
+        font-size: 24px;
+    }
+    title-bar > h1 + p {
+        font-size: 14px;
+    }
+    nav-bar {
+        padding: 10px 8px;
+        font-size: 14px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    nav-bar > * {
+        margin: 0px 6px;
+        display: inline-block;
+    }
+    article-item {
+        padding: 18px 18px;
+    }
+    article-item > a > h2 {
+        font-size: 18px;
+    }
+    article-item > a > summary {
+        font-size: 15px;
+        padding: 12px 0px;
+    }
+    item-detail > * {
+        display: flex;
+        font-size: 14px;
+        margin-right: 0px;
+    }
+    item-detail img {
+        width: 12px;
+        height: 12px;
+        margin-right: 5px;
+    }
+    publish-date {
+        display: none;
+    }
+    tags {
+        white-space: nowrap;
+        overflow-x: auto;
+    }
+    tag {
+        margin-right: 7px;
+    }
+    pager-widget > button {
+        max-width: 15vw;
+    }
+    pager-widget > input {
+        max-width: 20vw;
+    }
+    article, page {
+        padding: 20px 5px;
+    }
+    article > h1 {
+        font-size: 20px;
+    }
+    pre.code {
+        font-size: 16px;
+    }
+}
