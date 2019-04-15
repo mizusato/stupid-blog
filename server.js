@@ -32,25 +32,13 @@ let jump2spa = (req, res, next) => {
     server.handle(req, res, next)
 }
 
-server.use('/page/:id', (req, res, next) => {
-    req.url = '/'
-    server.handle(req, res, next)
-})
+server.use('/page/:id', seo.page, jump2spa)
 
-server.use('/article/:id', (req, res, next) => {
-    req.url = '/'
-    server.handle(req, res, next)
-})
+server.use('/article/:id', seo.article, jump2spa)
 
-server.use('/tag/:name', (req, res, next) => {
-    req.url = '/'
-    server.handle(req, res, next)
-})
+server.use('/tag/:name', jump2spa)
 
-server.use('/preview/:category', (req, res, next) => {
-    req.url = '/'
-    server.handle(req, res, next)
-})
+server.use('/preview/:category', jump2spa)
 
 server.use('/', seo.index)
 
