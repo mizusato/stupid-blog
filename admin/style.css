@@ -74,6 +74,7 @@ text-field > input, text-field > textarea {
     display: block;
     box-sizing: border-box;
     width: 100%;
+    padding: 3px 5px;
 }
 
 
@@ -230,7 +231,7 @@ bar-list:not(:last-child) {
 bar-item {
     display: flex;
     justify-content: space-between;
-    height: 5vh;
+    height: 4vh;
     padding: 2% 4%;
 }
 
@@ -337,7 +338,7 @@ bar-item-body > * {
 
 
 .editor text-field > input, .editor text-field > textarea {
-    font-size: 155%;
+    font-size: 140%;
 }
 
 

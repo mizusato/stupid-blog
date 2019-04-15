@@ -327,7 +327,7 @@ class MainView extends React.Component {
         this.sidebar_helpers = {
             switch_to: (category, id) => {
                 return (() => {
-                    console.log('switch to', category, id)
+                    // console.log('switch to', category, id)
                     this.setState({ selected: { category, id } })
                 })
             },
@@ -364,7 +364,7 @@ class MainView extends React.Component {
                     // forceUpdate in caller
                 }
                 return (async () => {
-                    console.log('remove', category, id)
+                    // console.log('remove', category, id)
                     if (category == 'settings') { throw Error('invalid') }
                     if (this.state.is_locked) { return }
                     let item_object = this.get(category, id)
@@ -390,7 +390,7 @@ class MainView extends React.Component {
             },
             add: (category) => {
                 return (() => {
-                    console.log('add', category)
+                    // console.log('add', category)
                     if (category == 'settings') { throw Error('invalid') }
                     let new_data = mapval(Blank[category], x => x)
                     new_data.id += ('-' + gen_id())
@@ -411,7 +411,7 @@ class MainView extends React.Component {
         this.editor_helpers = {
             dirty: (category, id) => {
                 return (delta => {
-                    console.log('dirty', category, id)
+                    // console.log('dirty', category, id)
                     let item_object = this.get(category, id)
                     item_object.dirty = true
                     Object.assign(item_object.data, delta)
@@ -420,7 +420,7 @@ class MainView extends React.Component {
             },
             save: (category, id) => {
                 return (async () => {
-                    console.log('save', category, id)
+                    // console.log('save', category, id)
                     let item_object = this.get(category, id)
                     if (!item_object.dirty) { return }
                     let req_data = {
@@ -473,7 +473,7 @@ class MainView extends React.Component {
         return (category == category_ && id == id_)
     }
     render () {
-        console.log('render', this.state)
+        // console.log('render', this.state)
         let { category, id } = this.state.selected
         let item = this.get(category, id)
         let Editor = Editors[category]

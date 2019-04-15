@@ -4,7 +4,8 @@
     let c = [...b.map(x => x+1), 2]
     class A {}
     let d = new A()
+    ;(async () => { await new Promise((res, rej) => { res(1) }) })()
     if (typeof window.fetch == 'function') {
-        window.es6_ok = true
+        window.es8_ok = true
     }
 })(window)
