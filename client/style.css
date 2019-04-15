@@ -125,9 +125,10 @@ article, page { padding: 24px 18px; position: relative; }
 article > h1 { font-size: 28px; }
 article > div.indicator { color: hsl(0, 0%, 40%); }
 article > div.indicator.date { margin-top: 24px; }
+article > div { font-size: 22px; color: hsl(0, 0%, 10%); }
 
 pre.code {
-    font-size: 20px;
+    font-size: 22px;
     border-radius: 6px;
     overflow-x: hidden;
     white-space: pre-wrap;
@@ -142,7 +143,7 @@ pre.code {
 @media only screen and (max-width: 1224px) {
     body {
         background: linear-gradient(
-            to bottom, hsl(189, 100%, 98%) 0%,hsl(192, 90%, 92%) 100%
+            to bottom, hsl(189, 100%, 95%) 0%,hsl(192, 90%, 92%) 100%
         );
     }
     blog {
@@ -211,7 +212,10 @@ pre.code {
         padding: 20px 5px;
     }
     article > h1 {
-        font-size: 20px;
+        font-size: 22px;
+    }
+    article > div {
+        font-size: 18px;
     }
     pre.code {
         font-size: 16px;
