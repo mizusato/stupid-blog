@@ -66,7 +66,7 @@ function page (req, res, next) {
     let title = `${page.title} - ${data.settings.meta.title}`
     let html = HtmlBoilerplate(title, HtmlTag('article', {}, [
         HtmlTag('h1', {}, Escape(page.title)),
-        HtmlTag('p', {}, Escape(page.content))
+        HtmlTag('p', {}, page.content)
     ]))
     res.send(html)
 }
@@ -85,7 +85,7 @@ function article (req, res, next) {
             HtmlTag('h1', {}, Escape(article.title)),
             HtmlTag('time', { pubdate: 'true', datetime: date }, Escape(date))
         ]),
-        HtmlTag('p', {}, Escape(article.content))
+        HtmlTag('p', {}, article.content)
     ]))
     res.send(html)
 }
