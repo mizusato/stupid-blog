@@ -1,3 +1,6 @@
+/**
+ *  Loading Tip
+ */
 let Loading = (props) => JSX({
     tag: 'loading-tip',
     children: [
@@ -6,6 +9,9 @@ let Loading = (props) => JSX({
 })
 
 
+/**
+ *  Login View (Dialog)
+ */
 class Login extends React.Component {
     get_form_data () {
         let username = this.refs.username.value

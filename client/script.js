@@ -1,6 +1,5 @@
 'use strict';
 
-
 let { Route, Link, BrowserRouter: Router } = ReactRouterDOM
 
 
@@ -161,6 +160,10 @@ class PagerPlugin {
     }
 }
 
+
+/**
+ *  Page Swither
+ */
 let PagerWidget = (props => {
     let pager = props.pager
     let get_page_from_index = (index_str => {
@@ -176,35 +179,41 @@ let PagerWidget = (props => {
             return null
         }
     })
-    return JSX({
-        tag: 'pager-widget', children: [
-            { tag: 'button', children: ['⇤'],
-              disabled: pager.is_first(),
-              onClick: ev => pager.goto('first') },
-            { tag: 'button', children: ['←'],
-              disabled: pager.is_first(),
-              onClick: ev => pager.goto('previous') },
-            { tag: 'input',
-              placeholder: `${pager.current+1}/${pager.num_pages}`,
-              onKeyUp: ev => {
-                  if (ev.key != 'Enter') { return }
-                  let page = get_page_from_index(ev.target.value)
-                  if (page != null) {
-                      ev.target.value = ''
-                      ev.target.blur()
-                      pager.goto(page)
-                  }
+    return JSX({ tag: 'pager-widget', children: [
+        { tag: 'button', children: ['⇤'],
+          disabled: pager.is_first(),
+          onClick: ev => pager.goto('first') },
+        { tag: 'button', children: ['←'],
+          disabled: pager.is_first(),
+          onClick: ev => pager.goto('previous') },
+        { tag: 'input',
+          placeholder: `${pager.current+1}/${pager.num_pages}`,
+          onKeyUp: ev => {
+              if (ev.key != 'Enter') { return }
+              let page = get_page_from_index(ev.target.value)
+              if (page != null) {
+                  ev.target.value = ''
+                  ev.target.blur()
+                  pager.goto(page)
               }
-            },
-            { tag: 'button', children: ['→'],
-              disabled: pager.is_last(),
-                  onClick: ev => pager.goto('next') },
-            { tag: 'button', children: ['⇥'],
-              disabled: pager.is_last(),
-              onClick: ev => pager.goto('last') }
-          ]
-    })
+          }
+        },
+        { tag: 'button', children: ['→'],
+          disabled: pager.is_last(),
+          onClick: ev => pager.goto('next') },
+        { tag: 'button', children: ['⇥'],
+          disabled: pager.is_last(),
+          onClick: ev => pager.goto('last') }
+    ] })
 })
+
+
+/**
+ *  Route Render Shortcut
+ */
+let RouteRender = element => (route_props => JSX(
+    Object.assign({}, route_props, element)
+))
 
 
 /**
@@ -236,38 +245,29 @@ class Blog extends React.Component {
             loading: () => JSX({
                 tag: 'blog',
                 className: 'loading',
-                children: [
-                    { tag: 'wrapper', children: [MSG.loading] }
-                ]
+                children: [ { tag: 'wrapper', children: [MSG.loading] } ]
             }),
             failed: () => JSX({
                 tag: 'blog',
                 className: 'failed',
-                children: [
-                    { tag: 'wrapper', children: [
-                        { tag: 'p', children: [MSG.failed] },
-                        { tag: 'button', children: [MSG.retry], handlers: {
-                            click: ev => this.load()
-                        }}
-                    ] }
-                ]
+                children: [ { tag: 'wrapper', children: [
+                    { tag: 'p', children: [MSG.failed] },
+                    { tag: 'button', children: [MSG.retry], handlers: {
+                        click: ev => this.load()
+                    } }
+                ] } ]
             }),
             success: () => JSX({
                 tag: 'blog',
                 className: 'ready',
-                children: [
-                    {
-                        tag: Router,
-                        children: [
-                            { tag: 'wrapper', children: [
-                                { tag: Header, data: this.state.data },
-                                { tag: Content, data: this.state.data },
-                                { tag: Comments, data: this.state.data },
-                                { tag: Footer, data: this.state.data }
-                            ] }
-                        ]
-                    }
-                ]
+                children: [ { tag: Router, children: [
+                    { tag: 'wrapper', children: [
+                        { tag: Header, data: this.state.data },
+                        { tag: Content, data: this.state.data },
+                        { tag: Comments, data: this.state.data },
+                        { tag: Footer, data: this.state.data }
+                    ] }
+                ] } ]
             })
         }
         return content[this.state.status]()
@@ -275,6 +275,9 @@ class Blog extends React.Component {
 }
 
 
+/**
+ *  Comment Area
+ */
 let Comments = (props => JSX({
     tag: Route,
     path: '/article/:id',
@@ -283,7 +286,6 @@ let Comments = (props => JSX({
         data: props.data
     })
 }))
-
 
 class CommentDisplay extends React.Component {
     init (props) {
@@ -331,6 +333,9 @@ class CommentDisplay extends React.Component {
 }
 
 
+/**
+ *  Footer Area
+ */
 let Footer = (props => JSX({
     tag: Route, path: '/', exact: true,
     render: RouteRender({
@@ -340,9 +345,9 @@ let Footer = (props => JSX({
 }))
 
 
-/**  Header  **/
-
-
+/**
+ *  Header Area
+ */
 let Header = (props) => JSX({
     tag: 'header',
     children: [
@@ -371,73 +376,32 @@ let NavBar = (props) => JSX({
 })
 
 
-/**  Content  **/
-
-
-let RouteRender = element => (route_props => JSX(
-    Object.assign({}, route_props, element)
-))
-
-
+/**
+ *  Content Area
+ */
 let Content = (props) => JSX({
     tag: 'content',
     children: [
-        { tag: Route, path: '/', exact: true,
-          render: RouteRender({
-              tag: ArticleList,
-              data: props.data
-          })
-        },
-        { tag: Route, path: '/tag/:tag',
-          render: RouteRender({
-              tag: ArticleList,
-              data: props.data
-          })
-        },
-        { tag: Route, path: '/page/:id',
-          render: RouteRender({
-              tag: Page,
-              data: props.data
-          })
-        },
-        { tag: Route, path: '/article/:id',
-          render: RouteRender({
-              tag: Article,
-              data: props.data
-          })
-        },
-        { tag: Route, path: '/preview/page',
-          render: RouteRender({
-              tag: Page,
-              data: props.data,
-              is_preview: true
-          })
-        },
-        { tag: Route, path: '/preview/article',
-          render: RouteRender({
-              tag: Article,
-              data: props.data,
-              is_preview: true
-          })
-        }
+        { tag: Route, path: '/', exact: true, render: RouteRender({
+            tag: ArticleList, data: props.data
+        }) },
+        { tag: Route, path: '/tag/:tag', render: RouteRender({
+            tag: ArticleList, data: props.data
+        }) },
+        { tag: Route, path: '/page/:id', render: RouteRender({
+            tag: Page, data: props.data
+        }) },
+        { tag: Route, path: '/article/:id', render: RouteRender({
+            tag: Article, data: props.data
+        }) },
+        { tag: Route, path: '/preview/page', render: RouteRender({
+            tag: Page, data: props.data, is_preview: true
+        }) },
+        { tag: Route, path: '/preview/article', render: RouteRender({
+              tag: Article, data: props.data, is_preview: true
+        }) }
     ]
 })
-
-let TagList = (props => JSX(
-    { tag: 'span', children: (
-        props.tags
-            .split(',')
-            .map(name => name.trim())
-            .map(name => ({
-                tag: 'tag', 'data-current': (name === props.current),
-                children: [{
-                    tag: Link, children: [name],
-                    to: `/tag/${name}`,
-                    style: { color: get_color(name) }
-                }]
-            }))
-    ) }
-))
 
 class ArticleList extends React.Component {
     constructor (props) {
@@ -527,6 +491,22 @@ class ArticleList extends React.Component {
         ] })
     }
 }
+
+let TagList = (props => JSX(
+    { tag: 'span', children: (
+        props.tags
+            .split(',')
+            .map(name => name.trim())
+            .map(name => ({
+                tag: 'tag', 'data-current': (name === props.current),
+                children: [{
+                    tag: Link, children: [name],
+                    to: `/tag/${name}`,
+                    style: { color: get_color(name) }
+                }]
+            }))
+    ) }
+))
 
 class Page extends React.Component {
     constructor (props) {
@@ -636,5 +616,5 @@ class Article extends React.Component {
 }
 
 
-// Render the Root Component
+/* Render the Root Component */
 ReactDOM.render(React.createElement(Blog), react_root)

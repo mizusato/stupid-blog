@@ -1,19 +1,28 @@
 #!/usr/bin/env node
 
-
+/* External Modules */
 let express = require('express')
 let argparse = require('argparse')
 
+/* Internal Modules */
 let tools = require('./server/tools')
 let auth = require('./server/auth')
 let api = require('./server/api')
 let seo = require('./server/seo')
 
 
+/* Initialize Server */
 let server = express()
 server.disable('etag')
 server.use(tools.logger)
 
+/* Common Static Files */
+server.use('/common', tools.serve_static('common'))
+
+/* User Static Files */
+server.use('/files', tools.serve_static('files', { index: true, dot: true }))
+
+/* Administration Interface */
 server.use(`${auth.admin_url}/api/*`, auth.checker)
 server.post(`${auth.admin_url}/api/remove`, tools.parse_json, api.remove)
 server.post(`${auth.admin_url}/api/update`, tools.parse_json, api.update)
@@ -21,26 +30,21 @@ server.post(`${auth.admin_url}/login`, tools.parse_json, auth.login)
 server.post(`${auth.admin_url}/validate`, tools.parse_json, auth.validate)
 server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 
-
+/* Data API */
 server.get('/data', api.get_data)
-server.use('/common', tools.serve_static('common'))
-server.use('/files', tools.serve_static('files', { index: true, dot: true }))
 
-
+/* SPA & SEO */
 let jump2spa = (req, res, next) => {
     req.url = '/'
     server.handle(req, res, next)
 }
-
 server.use('/page/:id', seo.page, jump2spa)
 server.use('/article/:id', seo.article, jump2spa)
 server.use('/tag/:name', jump2spa)
 server.use('/preview/:category', jump2spa)
-server.use('/', seo.index)
+server.use('/', seo.index, tools.serve_static('client'))
 
-server.use('/', tools.serve_static('client'))
-
-
+/* Error Handling */
 server.use((err, req, res, next) => {
     if (err.statusCode == 404) {
         res.status(404).sendFile('404.html', { root: `${__dirname}/server` })
@@ -56,6 +60,7 @@ server.use((err, req, res, next) => {
 })
 
 
+/* Entry Point */
 function main() {
     let parser = new argparse.ArgumentParser({
         addHelp: true,

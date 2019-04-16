@@ -80,6 +80,16 @@ let BarList = (props => JSX({
 }))
 
 
+/**
+ *  SFC: SideBar (Left Area)
+ *
+ *  props: {
+ *      icon: string,
+ *      do: Hash<Function<category [,id]>>,
+ *      is_selected: Function<category, id>,
+ *      edit: (Editor State Object)
+ *  }
+ */
 let SideBar = (props => JSX({
     tag: 'side-bar',
     children: concat(

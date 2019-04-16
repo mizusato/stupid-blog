@@ -20,6 +20,9 @@ let Blank = {
 }
 
 
+/**
+ *  Get String of Local Time
+ */
 function now () {
     return (
         (new Date(Date.now() - (new Date()).getTimezoneOffset()*60*1000))
@@ -30,6 +33,9 @@ function now () {
 }
 
 
+/**
+ *  Generate Id for New Items
+ */
 function gen_id () {
     let id_chars = '0123456789qwertyuiopasdfghjklzxcvbnm'
     let length = 10
@@ -42,6 +48,9 @@ function gen_id () {
 }
 
 
+/**
+ *  HashTable Version of forEach()
+ */
 function for_vals_of (hash, f) {
     for (let key of Object.keys(hash)) {
         f(hash[key])
@@ -49,6 +58,9 @@ function for_vals_of (hash, f) {
 }
 
 
+/**
+ *  HashTable Version of map()
+ */
 function mapval (hash, f) {
     let new_hash = {}
     for (let key of Object.keys(hash)) {
@@ -58,21 +70,23 @@ function mapval (hash, f) {
 }
 
 
+/**
+ *  Auth Token Management
+ */
 function get_token () {
     return sessionStorage.getItem('token')
 }
-
-
 function set_token (value) {
     sessionStorage.setItem('token', value)
 }
-
-
 function clear_token () {
     sessionStorage.removeItem('token')
 }
 
 
+/**
+ *  Backend Interface
+ */
 async function send_to_api (operation, data) {
     let options = {
         method: 'POST',
@@ -95,216 +109,75 @@ async function send_to_api (operation, data) {
 }
 
 
-let ContentForm = (props => JSX({
-    tag: 'content-form', class: 'form-body',
-    style: { display: props.tab == 'content'? 'block': 'none' },
-    children: [
-        { tag: TextInput, name: 'content', label: MSG.edit.content,
-          disabled: !props.can_input, dirty: props.dirty,
-          textarea: true, use_code_editor: true },
-        { tag: 'a', href: `/preview/${props.preview.type}`, target: '_blank',
-          className: 'preview', children: [MSG.preview],
-          onClick: ev => props.preview.prepare()  }
-    ]
-}))
-
-
-let ArticleInfoForm = (props => JSX({
-    tag: 'article-info-form', class: 'form-body',
-    style: { display: props.tab == 'info'? 'block': 'none' },
-    children: [
-        { tag: TextInput, name: 'title', label: MSG.edit.title,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'id', label: MSG.edit.id,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'tags', label: MSG.edit.tags,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'date', label: MSG.edit.date,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'summary', label: MSG.edit.summary,
-          textarea: true, disabled: !props.can_input, dirty: props.dirty },
-        { tag: OptionInput, name: 'visible', label: MSG.edit.visible,
-          disabled: !props.can_input, dirty: props.dirty }
-    ]
-}))
-
-
-let PageInfoForm = (props => JSX({
-    tag: 'page-info-form', class: 'form-body',
-    style: { display: props.tab == 'info'? 'block': 'none' },
-    children: [
-        { tag: TextInput, name: 'title', label: MSG.edit.title,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'id', label: MSG.edit.id,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: OptionInput, name: 'visible', label: MSG.edit.visible,
-          disabled: !props.can_input, dirty: props.dirty }
-    ]
-}))
-
-
-let EditorTabBar = (props => JSX({
-    tag: 'editor-tab-bar',
-    children: props.tabs.map(tab => ({
-        tag: 'a',
-        className: (props.tab == tab)? 'disabled': 'enabled',
-        href: (props.tab == tab)? null: 'javascript:void(0)',
-        children: [MSG.edit.tabs[tab]],
-        onClick: ev => props.switch_to(tab)
-    }))
-}))
-
-
-class PageArticleEditor extends FormComponent {
-    constructor (props, type) {
+/**
+ *  Root Component (Load Login View or Content Management View)
+ */
+class Admin extends React.Component {
+    constructor (props) {
         super(props)
-        this.state = { tab: 'info' }
-        this.tabs = ['info', 'content']
-        this.type = type
-    }
-    switch_to (tab) {
-        this.setState({ tab })
-    }
-    prepare_preview () {
-        localStorage.preview_title = this.props.item.data.title || ''
-        localStorage.preview_content = this.props.item.data.content || ''
-    }
-    render () {
-        let { dirty, save, can_input, can_save } = this.form_info()
-        let switch_to = this.switch_to.bind(this)
-        let preview = {
-            type: this.type,
-            prepare: this.prepare_preview.bind(this)
+        this.state = {
+            signed_in: (get_token() != null),
+            wait_at_dialog: false,
+            loaded: false
         }
-        let type = this.type
-        let InfoForm = ({
-            page: PageInfoForm,
-            article: ArticleInfoForm
-        })[type]
-        return JSX({
-            tag: `${type}-editor`, class: 'editor',
-            children: [ { tag: `${type}-form`, ref: 'form', children: [
-                { tag: 'h1', children: [MSG.edit[type]] },
-                { tag: EditorTabBar, switch_to, tabs: this.tabs,
-                  tab: this.state.tab },
-                { tag: InfoForm, can_input, dirty,
-                  tab: this.state.tab },
-                { tag: ContentForm, can_input, dirty, preview,
-                  tab: this.state.tab, },
-                { tag: 'button', children: [MSG.save],
-                  disabled: !can_save, onClick: save }
-            ] } ]
-        })
+        if (this.state.signed_in) {
+            this.load_data()
+        }
     }
-}
-
-
-class PageEditor extends PageArticleEditor {
-    constructor (props) {
-        super(props, 'page')
+    load_data () {
+        ;(async () => {
+            var data;
+            try {
+                let raw_v = await fetch('validate', {
+                    method: 'POST',
+                    body: JSON.stringify({ token: get_token() })
+                })
+                let data_v = await raw_v.json()
+                if (data_v.ok) {
+                    let raw = await fetch('/data')
+                    data = await raw.json()
+                    normalize(data, true)
+                    this.setState({
+                        wait_at_dialog: false, loaded: true, data: data
+                    })
+                } else {
+                    console.log('previous login is invalid')
+                    clear_token()
+                    if (this.state.wait_at_dialog) {
+                        // rare case but handling needed
+                        alert('invalid token')
+                        window.location.reload()
+                    } else {
+                        this.setState({ signed_in: false })
+                    }
+                }
+            } catch (err) {
+                console.log(err)
+                alert(MSG.failed)
+                window.location.reload()
+            }
+        })()
     }
-}
-
-
-class ArticleEditor extends PageArticleEditor {
-    constructor (props) {
-        super(props, 'article')
-    }
-}
-
-
-let SiteInfoFrom = (props) => (JSX({
-    tag: 'site-info-form', class: 'form-body',
-    style: { display: (props.tab == 'site_info')? 'block': 'none' },
-    children: [
-        { tag: TextInput, name: 'title', label: MSG.site_title,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'name', label: MSG.site_name,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'description', label: MSG.site_desc,
-          textarea: true, disabled: !props.can_input, dirty: props.dirty },
-    ]
-}))
-
-
-let OptionsForm = (props => JSX({
-    tag: 'option-form', class: 'form-body',
-    style: { display: (props.tab == 'options')? 'block': 'none' },
-    children: [
-        { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: OptionInput, name: 'disqus_enabled', label: MSG.disqus.enabled,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'disqus_site_id', label: MSG.disqus.site_id,
-          disabled: !props.can_input, dirty: props.dirty },
-        { tag: TextInput, name: 'license', label: MSG.license,
-          disabled: !props.can_input, dirty: props.dirty }
-    ]
-}))
-
-
-let FooterForm = (props => JSX({
-    tag: 'footer-form', class: 'form-body',
-    style: { display: (props.tab == 'footer')? 'block': 'none' },
-    children: [
-        { tag: TextInput, name: 'footer', label: MSG.edit.footer,
-          disabled: !props.can_input, dirty: props.dirty,
-          textarea: true, use_code_editor: true },
-    ]
-}))
-
-
-class MetaEditor extends FormComponent {
-    constructor (props, type) {
-        super(props)
-        this.state = { tab: 'site_info' }
-        this.tabs = ['site_info', 'options', 'footer']
-    }
-    switch_to (tab) {
-        this.setState({ tab })
+    login (token) {
+        set_token(token)
+        this.load_data()
+        this.setState({ signed_in: true, wait_at_dialog: true })
     }
     render () {
-        let { dirty, save, can_input, can_save } = this.form_info()
-        return JSX({
-            tag: 'meta-editor', class: 'editor',
-            children: [ { tag: 'meta-form', ref: 'form', children: [
-                { tag: 'h1', children: [MSG.meta] },
-                { tag: EditorTabBar, switch_to: this.switch_to.bind(this),
-                  tabs: this.tabs, tab: this.state.tab },
-                { tag: SiteInfoFrom, can_input, dirty, tab: this.state.tab },
-                { tag: OptionsForm, can_input, dirty, tab: this.state.tab },
-                { tag: FooterForm, can_input, dirty, tab: this.state.tab },
-                { tag: 'button', children: [MSG.save],
-                  disabled: !can_save, onClick: save }
-            ] } ]
-        })
+        let { signed_in, loaded, wait_at_dialog, data } = this.state
+        if (!signed_in || wait_at_dialog ) {
+            return JSX({ tag: Login, success: token => this.login(token) })
+        } else if (!loaded) {
+            return JSX({ tag: Loading })
+        }
+        return JSX({ tag: MainView, data: data })
     }
 }
 
 
-let Editors = {
-    settings: MetaEditor,
-    pages: PageEditor,
-    articles: ArticleEditor
-}
-
-
-class EditArea extends React.Component {
-    render () {
-        return JSX({
-            tag: 'edit-area',
-            children: [{
-                tag: this.props.editor,
-                item: this.props.item,
-                is_locked: this.props.is_locked,
-                dirty: this.props.do.dirty,
-                save: this.props.do.save
-            }]
-        })
-    }
-}
-
-
+/**
+ *  Content Management View (Saves All Editor State)
+ */
 class MainView extends React.Component {
     constructor (props) {
         super(props)
@@ -474,6 +347,11 @@ class MainView extends React.Component {
     }
     render () {
         // console.log('render', this.state)
+        let Editors = {
+            settings: MetaEditor,
+            pages: PageEditor,
+            articles: ArticleEditor
+        }
         let { category, id } = this.state.selected
         let item = this.get(category, id)
         let Editor = Editors[category]
@@ -493,68 +371,209 @@ class MainView extends React.Component {
 }
 
 
-class Admin extends React.Component {
-    constructor (props) {
-        super(props)
-        this.state = {
-            signed_in: (get_token() != null),
-            wait_at_dialog: false,
-            loaded: false
-        }
-        if (this.state.signed_in) {
-            this.load_data()
-        }
-    }
-    load_data () {
-        ;(async () => {
-            var data;
-            try {
-                let raw_v = await fetch('validate', {
-                    method: 'POST',
-                    body: JSON.stringify({ token: get_token() })
-                })
-                let data_v = await raw_v.json()
-                if (data_v.ok) {
-                    let raw = await fetch('/data')
-                    data = await raw.json()
-                    normalize(data, true)
-                    this.setState({
-                        wait_at_dialog: false, loaded: true, data: data
-                    })
-                } else {
-                    console.log('previous login is invalid')
-                    clear_token()
-                    if (this.state.wait_at_dialog) {
-                        // rare case but handling needed
-                        alert('invalid token')
-                        window.location.reload()
-                    } else {
-                        this.setState({ signed_in: false })
-                    }
-                }
-            } catch (err) {
-                console.log(err)
-                alert(MSG.failed)
-                window.location.reload()
-            }
-        })()
-    }
-    login (token) {
-        set_token(token)
-        this.load_data()
-        this.setState({ signed_in: true, wait_at_dialog: true })
-    }
+/**
+ *  Editor Area (Right Area)
+ */
+class EditArea extends React.Component {
     render () {
-        let { signed_in, loaded, wait_at_dialog, data } = this.state
-        if (!signed_in || wait_at_dialog ) {
-            return JSX({ tag: Login, success: token => this.login(token) })
-        } else if (!loaded) {
-            return JSX({ tag: Loading })
-        }
-        return JSX({ tag: MainView, data: data })
+        return JSX({
+            tag: 'edit-area',
+            children: [{
+                tag: this.props.editor,
+                item: this.props.item,
+                is_locked: this.props.is_locked,
+                dirty: this.props.do.dirty,
+                save: this.props.do.save
+            }]
+        })
     }
 }
 
 
+/**
+ *  Editor for Pages and Articles
+ */
+class PageArticleEditor extends FormComponent {
+    constructor (props, type) {
+        super(props)
+        this.state = { tab: 'info' }
+        this.tabs = ['info', 'content']
+        this.type = type
+    }
+    switch_to (tab) {
+        this.setState({ tab })
+    }
+    prepare_preview () {
+        localStorage.preview_title = this.props.item.data.title || ''
+        localStorage.preview_content = this.props.item.data.content || ''
+    }
+    render () {
+        let { dirty, save, can_input, can_save } = this.form_info()
+        let switch_to = this.switch_to.bind(this)
+        let preview = {
+            type: this.type,
+            prepare: this.prepare_preview.bind(this)
+        }
+        let type = this.type
+        let InfoForm = ({
+            page: PageInfoForm,
+            article: ArticleInfoForm
+        })[type]
+        return JSX({
+            tag: `${type}-editor`, class: 'editor',
+            children: [ { tag: `${type}-form`, ref: 'form', children: [
+                { tag: 'h1', children: [MSG.edit[type]] },
+                { tag: EditorTabBar, switch_to, tabs: this.tabs,
+                  tab: this.state.tab },
+                { tag: InfoForm, can_input, dirty,
+                  tab: this.state.tab },
+                { tag: ContentForm, can_input, dirty, preview,
+                  tab: this.state.tab, },
+                { tag: 'button', children: [MSG.save],
+                  disabled: !can_save, onClick: save }
+            ] } ]
+        })
+    }
+}
+
+class PageEditor extends PageArticleEditor {
+    constructor (props) {
+        super(props, 'page')
+    }
+}
+
+class ArticleEditor extends PageArticleEditor {
+    constructor (props) {
+        super(props, 'article')
+    }
+}
+
+let EditorTabBar = (props => JSX({
+    tag: 'editor-tab-bar',
+    children: props.tabs.map(tab => ({
+        tag: 'a',
+        className: (props.tab == tab)? 'disabled': 'enabled',
+        href: (props.tab == tab)? null: 'javascript:void(0)',
+        children: [MSG.edit.tabs[tab]],
+        onClick: ev => props.switch_to(tab)
+    }))
+}))
+
+let PageInfoForm = (props => JSX({
+    tag: 'page-info-form', class: 'form-body',
+    style: { display: props.tab == 'info'? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'title', label: MSG.edit.title,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'id', label: MSG.edit.id,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: OptionInput, name: 'visible', label: MSG.edit.visible,
+          disabled: !props.can_input, dirty: props.dirty }
+    ]
+}))
+
+let ArticleInfoForm = (props => JSX({
+    tag: 'article-info-form', class: 'form-body',
+    style: { display: props.tab == 'info'? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'title', label: MSG.edit.title,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'id', label: MSG.edit.id,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'tags', label: MSG.edit.tags,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'date', label: MSG.edit.date,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'summary', label: MSG.edit.summary,
+          textarea: true, disabled: !props.can_input, dirty: props.dirty },
+        { tag: OptionInput, name: 'visible', label: MSG.edit.visible,
+          disabled: !props.can_input, dirty: props.dirty }
+    ]
+}))
+
+let ContentForm = (props => JSX({
+    tag: 'content-form', class: 'form-body',
+    style: { display: props.tab == 'content'? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'content', label: MSG.edit.content,
+          disabled: !props.can_input, dirty: props.dirty,
+          textarea: true, use_code_editor: true },
+        { tag: 'a', href: `/preview/${props.preview.type}`, target: '_blank',
+          className: 'preview', children: [MSG.preview],
+          onClick: ev => props.preview.prepare()  }
+    ]
+}))
+
+
+/**
+ *  Site Metadata Editor
+ */
+class MetaEditor extends FormComponent {
+    constructor (props, type) {
+        super(props)
+        this.state = { tab: 'site_info' }
+        this.tabs = ['site_info', 'options', 'footer']
+    }
+    switch_to (tab) {
+        this.setState({ tab })
+    }
+    render () {
+        let { dirty, save, can_input, can_save } = this.form_info()
+        return JSX({
+            tag: 'meta-editor', class: 'editor',
+            children: [ { tag: 'meta-form', ref: 'form', children: [
+                { tag: 'h1', children: [MSG.meta] },
+                { tag: EditorTabBar, switch_to: this.switch_to.bind(this),
+                  tabs: this.tabs, tab: this.state.tab },
+                { tag: SiteInfoFrom, can_input, dirty, tab: this.state.tab },
+                { tag: OptionsForm, can_input, dirty, tab: this.state.tab },
+                { tag: FooterForm, can_input, dirty, tab: this.state.tab },
+                { tag: 'button', children: [MSG.save],
+                  disabled: !can_save, onClick: save }
+            ] } ]
+        })
+    }
+}
+
+let SiteInfoFrom = (props) => (JSX({
+    tag: 'site-info-form', class: 'form-body',
+    style: { display: (props.tab == 'site_info')? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'title', label: MSG.site_title,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'name', label: MSG.site_name,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'description', label: MSG.site_desc,
+          textarea: true, disabled: !props.can_input, dirty: props.dirty },
+    ]
+}))
+
+let OptionsForm = (props => JSX({
+    tag: 'option-form', class: 'form-body',
+    style: { display: (props.tab == 'options')? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'ipp', label: MSG.items_per_page,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: OptionInput, name: 'disqus_enabled', label: MSG.disqus.enabled,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'disqus_site_id', label: MSG.disqus.site_id,
+          disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'license', label: MSG.license,
+          disabled: !props.can_input, dirty: props.dirty }
+    ]
+}))
+
+let FooterForm = (props => JSX({
+    tag: 'footer-form', class: 'form-body',
+    style: { display: (props.tab == 'footer')? 'block': 'none' },
+    children: [
+        { tag: TextInput, name: 'footer', label: MSG.edit.footer,
+          disabled: !props.can_input, dirty: props.dirty,
+          textarea: true, use_code_editor: true },
+    ]
+}))
+
+
+/* Set Title, Render Root Element */
 document.title = MSG.admin_title
 ReactDOM.render(React.createElement(Admin), react_root)
