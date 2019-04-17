@@ -66,7 +66,9 @@ function main() {
         addHelp: true,
         description: 'Blog Server'
     })
-    parser.addArgument(['-p','--port'], { defaultValue: '9487' })
+    parser.addArgument(['-p','--port'], {
+        defaultValue: process.env.PORT || '9487'
+    })
     let args = parser.parseArgs()
     let delay = api.SAVE_DELAY
     console.log(`*** SAVE_DELAY is set to ${delay}ms`)
