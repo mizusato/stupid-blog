@@ -27,8 +27,10 @@ Features:
 
 ```
 $ git clone https://notabug.org/mizusato/stupid-blog
+$ cd stupid-blog
 $ git update-index --assume-unchanged password.json
 $ git update-index --assume-unchanged data/data.json
+$ npm install
 $ ./reset.js
 input new url for admin interface: /my-admin  # customize your admin url here
 input new username: **
@@ -49,7 +51,7 @@ It is possible to use other port by specifing `./server.js --port=PORT`.
 
 ### Why not English/l10n for UI ?
 
-This project is initially developed for my personal use. I want it to be open source so I uploaded it to the online git service. Therefore, all messages in the UI are written in Traditional Chinese. If you don't speak Chinese, you can simply translate the messages defined in `common/msg.js`. It is quite easy with a online translation service. Futhermore, if someone could add a l10n feature to the app, I will be glad to accept it.
+This project was initially developed for my personal use. I want it to be open source so I uploaded it to the online git service. Therefore, all messages in the UI are written in Traditional Chinese. If you don't speak Chinese, you can simply translate the messages defined in `common/msg.js`. It is quite easy with a online translation service. Futhermore, if someone could add a l10n feature to the app, I will be glad to accept it.
 
 ### Why not Webpack/Babel ?
 
