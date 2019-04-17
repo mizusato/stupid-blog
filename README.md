@@ -65,4 +65,10 @@ The app will serve `files` folder directly as `http://localhost:XXXX/files/`. It
 
 ### Why not a data Model/Schema ?
 
-The backend API does not restrict the format of coming data. There is no security problem since only the administrator of the site can push data to the API. The advantage of this design is that, for example, if you want to add a field to the settings, simply modify the front-end script, it will work.
+The backend API does not restrict the format of coming data. However, there is no security problem since only the administrator of the site can push data to the API. The advantage of this design is that, for example, if you want to add a field to the settings, simply modify the front-end script, it will work.
+
+## LICENSE
+
+The source code of this program is licensed under GPLv2.
+
+The built-in icons in this program are from `gnome-icon-theme`, `tangerine-icon-theme`, `oxygen-icon-theme`, `simpleicon.com` and `open-iconic`, licensed under their original license.
