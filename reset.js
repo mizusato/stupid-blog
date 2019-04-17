@@ -2,7 +2,7 @@
 
 
 let readline = require('readline-sync')
-let auth = require('./auth')
+let auth = require('./server/auth')
 let mask = { hideEchoBack: true, mask: '*' }
 
 
