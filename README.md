@@ -27,7 +27,7 @@ Features:
 
 ## Installation
 
-```
+```console
 $ git clone https://notabug.org/mizusato/stupid-blog
 $ cd stupid-blog
 $ git update-index --assume-unchanged password.json
