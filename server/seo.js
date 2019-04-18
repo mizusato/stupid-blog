@@ -105,8 +105,15 @@ function index (req, res, next) {
         )))
     }
     let articles = []
-    for (let id of Object.keys(data.articles)) {
+    let sorted = Object.keys(data.articles).sort((l,r) => {
+        let ld = data.articles[l].date
+        let rd = data.articles[r].date
+        if (ld == rd) { return 0 }
+        return (ld < rd)? 1: -1
+    })
+    for (let id of sorted) {
         let article = data.articles[id]
+        if (!article.visible) { continue }
         articles.push(HtmlTag('li', {}, HtmlTag('article', {}, [
             HtmlTag('h4', {}, HtmlTag(
                 'a', { href: `/article/${id}` },

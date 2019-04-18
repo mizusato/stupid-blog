@@ -9,12 +9,14 @@ let tools = require('./server/tools')
 let auth = require('./server/auth')
 let api = require('./server/api')
 let seo = require('./server/seo')
+let feed = require('./server/feed')
 
 
 /* Initialize Server */
 let server = express()
 server.disable('etag')
 server.use(tools.logger)
+server.set('trust proxy', 'loopback')
 
 /* Common Static Files */
 server.use('/common', tools.serve_static('common'))
@@ -32,6 +34,9 @@ server.use(`${auth.admin_url}`, tools.serve_static('admin'))
 
 /* Data API */
 server.get('/data', api.get_data)
+
+/* RSS Feed */
+server.get('/feed', feed.rss)
 
 /* SPA & SEO */
 let jump2spa = (req, res, next) => {

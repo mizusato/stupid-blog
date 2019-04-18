@@ -543,6 +543,8 @@ let SiteInfoFrom = (props) => (JSX({
           disabled: !props.can_input, dirty: props.dirty },
         { tag: TextInput, name: 'name', label: MSG.site_name,
           disabled: !props.can_input, dirty: props.dirty },
+        { tag: TextInput, name: 'url', label: MSG.site_url,
+          disabled: !props.can_input, dirty: props.dirty },
         { tag: TextInput, name: 'description', label: MSG.site_desc,
           textarea: true, disabled: !props.can_input, dirty: props.dirty },
     ]

@@ -28,6 +28,7 @@ let MSG = {
     site_name: '網站名稱',
     site_desc: '網站描述',
     site_title: '網站標題',
+    site_url: '網站地址',
     items_per_page: '每頁文章數',
     license: '授權條款',
     save: '儲存',
@@ -39,7 +40,7 @@ let MSG = {
         title: '標題',
         tags: 'Tags',
         date: '發表日期',
-        visible: '可見',
+        visible: '可見（取消鉤選後，不會在首頁中出現，但仍會在 JSON API 中返回）',
         summary: '摘要',
         content: '內容',
         footer: '頁腳內容',
@@ -55,7 +56,7 @@ let MSG = {
     blank: {
         article: '空白文章',
         page: '空白頁面',
-        default_summary: '<p>lorem ipsum</p>',
+        default_summary: 'lorem ipsum',
         default_content: '<p>lorem ipsum dolor sit amet...</p>'
     },
     confirm_remove: {
