@@ -20,7 +20,7 @@ Features:
 
 - syntax highlighting with hightlight.js
 
-- rss feed support
+- rss feed support (served on `/feed`)
 
 - providing simple semantic html page for search engine crawlers
 
