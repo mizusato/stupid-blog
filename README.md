@@ -31,6 +31,7 @@ Features:
 $ git clone https://notabug.org/mizusato/stupid-blog
 $ cd stupid-blog
 $ git update-index --assume-unchanged password.json
+$ git update-index --assume-unchanged files
 $ cp data/data-template.json data/data.json
 $ npm install
 $ ./reset.js
