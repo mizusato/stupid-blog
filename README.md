@@ -31,7 +31,7 @@ Features:
 $ git clone https://notabug.org/mizusato/stupid-blog
 $ cd stupid-blog
 $ git update-index --assume-unchanged password.json
-$ git update-index --assume-unchanged data/data.json
+$ cp data/data-template.json data/data.json
 $ npm install
 $ ./reset.js
 input new url for admin interface: /my-admin  # customize your admin url here
