@@ -59,7 +59,7 @@ This project was initially developed for my personal use. I want it to be open s
 
 I want the app to be fully hackable, that is, easy to be customized in code-level, as it is developer-oriented. Webpack/Babel requires a huge development environment to be configured, and also requires a compilation process, which increases the difficulty of customizing the app in code-level.
 
-Not using Babel actually causes compatibility problems, if the browser of user don't support ES2017, the app won't work at all. But there is no need to worry about it if your blog posts are developer-oriented.
+Not using Babel actually causes compatibility problems, if the browser of user does not support ES2017, the app won't work at all. But there is no need to worry about that things if your blog posts are developer-oriented.
 
 ### Why not a file management system ?
 
