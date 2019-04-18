@@ -20,6 +20,8 @@ Features:
 
 - syntax highlighting with hightlight.js
 
+- rss feed support
+
 - providing simple semantic html page for search engine crawlers
 
 
