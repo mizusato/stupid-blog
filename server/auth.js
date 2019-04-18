@@ -1,5 +1,5 @@
 let CONFIG_SCHEMA = { url: 'string', username: 'string', password: 'string' }
-let PASSWORD_FILE = 'password.json'
+let PASSWORD_FILE = `${__dirname}/../password.json`
 let ROUNDS = 12
 let TOKEN_CHARS = '0123456789qwertyuiopasdfghjklzxcvbnm'
 let TOKEN_LENGTH = 50
