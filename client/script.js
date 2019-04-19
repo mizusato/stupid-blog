@@ -37,16 +37,16 @@ function get_color (string) {
     let base = 'cnjq3rivn9340vnwescm' + string.length.toString(16)
     let input = string + base
     let [a, b, c] = [6601, 4477, 5050]
-    let M = 9487
+    let M = 9733
     for (let char of input) {
         let x = char.codePointAt(0) * 2333
         a = ((57 + x*a + (b*c) % M)*x + x) % M
         b = ((99 + x*b + (c*a) % M)*x + x) % M
         c = ((41 + x*c + (a*b) % M)*x + x) % M
     }
-    let H = a % 360
-    let S = 60 + (b % 40)
-    let L = 40 + (c % 5)
+    let H = a % 359
+    let S = 55 + (b % 47)
+    let L = 30 + (c % 17)
     return `hsl(${H}, ${S}%, ${L}%)`
 }
 
