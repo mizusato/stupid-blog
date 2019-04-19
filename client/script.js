@@ -45,8 +45,8 @@ function get_color (string) {
         c = ((41 + x*c + (a*b) % M)*x + x) % M
     }
     let H = a % 359
-    let S = 55 + (b % 47)
-    let L = 30 + (c % 17)
+    let S = 55 + (b % 31)
+    let L = 30 + (c % 19)
     return `hsl(${H}, ${S}%, ${L}%)`
 }
 
