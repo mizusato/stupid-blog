@@ -592,6 +592,7 @@ class Article extends React.Component {
         this.after_render()
     }
     after_render () {
+        scroll_to_content()
         render_formulas(this.refs.root)
         render_code_blocks(this.refs.root)
     }
