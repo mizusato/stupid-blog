@@ -45,9 +45,11 @@ function get_color (string) {
         c = ((41 + x*c + (a*b) % M)*x + x) % M
     }
     let H = a % 359
-    let S = 55 + (b % 31)
-    let L = 30 + (c % 19)
-    return `hsl(${H}, ${S}%, ${L}%)`
+    let S = 80 + (b % 17)
+    let B = 45 + (c % 19)
+    let L = Math.round((200-S) * B/200)
+    let S_ = Math.round((0 < L && L < 100)? S*B/(L<50? L*2: 2-L*2) : S)
+    return `hsl(${H}, ${S_}%, ${L}%)`
 }
 
 
