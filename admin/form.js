@@ -44,10 +44,12 @@ function pull_data (form) {
     let data = {}
     let fields = form.querySelectorAll(INPUT_SELECTOR)
     for (let field of fields) {
-        if (field.type != 'checkbox') {
-            data[field.name] = field.value
-        } else {
-            data[field.name] = field.checked
+        if (field.name != '') {
+            if (field.type != 'checkbox') {
+                data[field.name] = field.value
+            } else {
+                data[field.name] = field.checked
+            }
         }
     }
     return data
