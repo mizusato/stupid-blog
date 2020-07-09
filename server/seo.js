@@ -25,10 +25,10 @@ function HtmlBoilerplate (title, body) {
                 <title>${Escape(title)}</title>
             </head>
             <body>
+                ${body}
                 <p style="color:red; font-weight: bold; font-size: 120%;">
                     This page intends for crawlers/spiders/bots of search engines. If you didn't modify your HTTP UserAgent, please report the bug to <a href="https://github.com/binarykitchen/spider-detector/" target="_blank">spider-detector</a>.
                 </p>
-                ${body}
             </body>
         </html>
     `
